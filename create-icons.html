@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Icon Generator - Order Book</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 { color: #4CAF50; }
+        .icon-preview {
+            display: inline-block;
+            margin: 10px;
+        }
+        canvas {
+            border: 1px solid #ddd;
+            margin: 10px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 10px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .instructions {
+            background: #f0f0f0;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>📊 Order Book - Icon Generator</h1>
+    
+    <div class="instructions">
+        <h3>Instructions:</h3>
+        <ol>
+            <li>Click "Generate Icons" button below</li>
+            <li>Icons will be displayed on the page</li>
+            <li>Right-click each icon and "Save image as..."</li>
+            <li>Save with the exact names shown (e.g., icon-72.png)</li>
+            <li>Place all icons in the <code>assets/images/</code> folder</li>
+        </ol>
+    </div>
+    
+    <button onclick="generateIcons()">Generate Icons</button>
+    
+    <div id="icons"></div>
+    
+    <script>
+        function generateIcons() {
+            const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+            const iconsDiv = document.getElementById('icons');
+            iconsDiv.innerHTML = '<h2>Generated Icons (Right-click to save)</h2>';
+            
+            sizes.forEach(size => {
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext('2d');
+                
+                // Background gradient
+                const gradient = ctx.createLinearGradient(0, 0, size, size);
+                gradient.addColorStop(0, '#4CAF50');
+                gradient.addColorStop(1, '#45a049');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, size, size);
+                
+                // Icon text
+                ctx.fillStyle = 'white';
+                ctx.font = `bold ${size * 0.3}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('OB', size / 2, size / 2);
+                
+                // Small subtitle
+                ctx.font = `${size * 0.15}px Arial`;
+                ctx.fillText('Order', size / 2, size * 0.7);
+                
+                const preview = document.createElement('div');
+                preview.className = 'icon-preview';
+                preview.innerHTML = `
+                    <div>
+                        <p><strong>icon-${size}.png</strong></p>
+                        ${canvas.outerHTML}
+                    </div>
+                `;
+                iconsDiv.appendChild(preview);
+            });
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,120 @@
+======================================
+ORDER BOOK - INSTALLATION GUIDE
+======================================
+
+QUICK START GUIDE
+-----------------
+
+1. REQUIREMENTS:
+   - WAMP/XAMPP/LAMP server
+   - PHP 7.4 or higher
+   - MySQL 5.7 or higher
+   - Modern web browser
+
+2. INSTALLATION STEPS:
+
+   Step 1: Place Files
+   -------------------
+   Copy all files to: C:\wamp\www\orderbook\
+
+   Step 2: Create Database
+   -----------------------
+   a) Open phpMyAdmin (http://localhost/phpmyadmin)
+   b) Click "New" to create a database
+   c) Database name: orderbook
+   d) Collation: utf8mb4_general_ci
+   e) Click "Create"
+
+   Step 3: Import Database
+   -----------------------
+   a) Select the "orderbook" database
+   b) Click "Import" tab
+   c) Choose file: database.sql
+   d) Click "Go"
+
+   Step 4: Configure (if needed)
+   -----------------------------
+   Open config/database.php and verify:
+   - DB_HOST = 'localhost'
+   - DB_USER = 'root'
+   - DB_PASS = '' (empty for WAMP)
+   - DB_NAME = 'orderbook'
+
+   Open config/config.php and verify:
+   - BASE_URL = 'http://localhost/orderbook/'
+
+   Step 5: Create PWA Icons
+   ------------------------
+   Create icon files in assets/images/ folder:
+   - icon-72.png (72x72 pixels)
+   - icon-96.png (96x96 pixels)
+   - icon-128.png (128x128 pixels)
+   - icon-144.png (144x144 pixels)
+   - icon-152.png (152x152 pixels)
+   - icon-192.png (192x192 pixels)
+   - icon-384.png (384x384 pixels)
+   - icon-512.png (512x512 pixels)
+
+   You can use any online PNG icon generator or design tool.
+
+   Step 6: Access Application
+   --------------------------
+   Open browser and go to: http://localhost/orderbook/
+
+3. DEFAULT LOGIN:
+   Username: admin
+   Password: admin123
+   
+   IMPORTANT: Change password after first login!
+
+4. TROUBLESHOOTING:
+
+   Problem: Blank page
+   Solution: Check PHP error logs in WAMP
+
+   Problem: Database connection error
+   Solution: Verify database credentials in config/database.php
+
+   Problem: Can't login
+   Solution: Make sure database was imported correctly
+
+   Problem: PWA not working
+   Solution: Create icon files in assets/images/ folder
+
+5. FEATURES:
+   ✓ User Registration & Login
+   ✓ Add/Edit/Delete Orders
+   ✓ Search & Filter Orders
+   ✓ Calendar View
+   ✓ Mobile PWA Support
+   ✓ Offline Capability
+   ✓ Responsive Design
+
+6. FOLDER STRUCTURE:
+   orderbook/
+   ├── api/              (Backend APIs)
+   ├── assets/           (CSS, JS, Images)
+   ├── config/           (Configuration files)
+   ├── database.sql      (Database schema)
+   ├── index.php         (Main page)
+   ├── login.php         (Login page)
+   ├── register.php      (Register page)
+   ├── manifest.json     (PWA manifest)
+   └── sw.js             (Service worker)
+
+7. USAGE:
+   - Click + button to add new order
+   - Click pencil icon to edit order
+   - Click eye icon to view details
+   - Click trash icon to delete order
+   - Use checkboxes to select multiple orders
+   - Click calendar button to view calendar
+   - Use search and filters at the top
+
+8. SUPPORT:
+   Check README.md for detailed documentation
+
+======================================
+Enjoy using Order Book! 📊
+======================================
+
