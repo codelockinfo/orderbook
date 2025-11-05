@@ -23,7 +23,7 @@ RewriteEngine On
 </IfModule>
 
 # PHP Settings
-<IfModule mod_php7.c>
+<IfModule mod_php.c>
     php_value upload_max_filesize 10M
     php_value post_max_size 10M
     php_value max_execution_time 300
@@ -35,14 +35,12 @@ Options -Indexes
 
 # Protect config files
 <FilesMatch "^(database\.php|config\.php)$">
-    Order allow,deny
-    Deny from all
+    Require all denied
 </FilesMatch>
 
 # Allow access to assets
 <FilesMatch "\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$">
-    Order allow,deny
-    Allow from all
+    Require all granted
 </FilesMatch>
 
 # Error Documents
