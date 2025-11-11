@@ -77,6 +77,7 @@ header h1 i {
 
 /* Button row container - desktop */
 .button-row {
+    width: 100%;
     display: flex;
     gap: 15px;
     align-items: center;

@@ -220,12 +220,22 @@ class NotificationManager {
                     if (notificationToggle) notificationToggle.checked = false;
                     this.updateNotificationBadge(false);
                     this.showToast('Notifications disabled', 'info');
+                    
+                    // Dispatch event for auto-trigger
+                    window.dispatchEvent(new CustomEvent('notificationStatusChanged', {
+                        detail: { enabled: false }
+                    }));
                 } else {
                     // Subscribe
                     await this.subscribeToPush();
                     if (notificationToggle) notificationToggle.checked = true;
                     this.updateNotificationBadge(true);
                     this.showToast('Notifications enabled! You will receive reminders 1 day before orders.', 'success');
+                    
+                    // Dispatch event for auto-trigger
+                    window.dispatchEvent(new CustomEvent('notificationStatusChanged', {
+                        detail: { enabled: true }
+                    }));
                 }
             } else if (permission === 'denied') {
                 this.showToast('Notification permission denied. Please enable in browser settings.', 'error');

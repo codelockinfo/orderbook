@@ -24,7 +24,7 @@ requireLogin();
                     <div class="button-row">
                         <button id="notificationBtn" class="btn btn-secondary" title="Toggle notifications">
                             <i class="fas fa-bell"></i>
-                            <span id="notificationBadge" class="notification-badge" style="display: none;">ON</span>
+                            <span id="notificationBadge" class="notification-badge" style="display: none; color: #fff;">ON</span>
                         </button>
                         <button id="calendarViewBtn" class="btn btn-secondary"><i class="fas fa-calendar-alt"></i> Calendar</button>
                     </div>
@@ -166,6 +166,7 @@ requireLogin();
     <script src="assets/js/app.js"></script>
     <script src="assets/js/calendar.js"></script>
     <script src="assets/js/notifications.js"></script>
+    <script src="assets/js/auto-notifications.js"></script>
     <script>
         // Register service worker for PWA
         if ('serviceWorker' in navigator) {
