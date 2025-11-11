@@ -21,7 +21,13 @@ requireLogin();
                 <h1><i class="fas fa-chart-line"></i> Order Book</h1>
                 <div class="user-info">
                     <span>Welcome, <strong><?php echo htmlspecialchars($_SESSION['username'] ?? 'User'); ?></strong></span>
-                    <button id="calendarViewBtn" class="btn btn-secondary"><i class="fas fa-calendar-alt"></i> Calendar</button>
+                    <div class="button-row">
+                        <button id="notificationBtn" class="btn btn-secondary" title="Toggle notifications">
+                            <i class="fas fa-bell"></i>
+                            <span id="notificationBadge" class="notification-badge" style="display: none;">ON</span>
+                        </button>
+                        <button id="calendarViewBtn" class="btn btn-secondary"><i class="fas fa-calendar-alt"></i> Calendar</button>
+                    </div>
                     <button id="logoutBtn" class="btn btn-secondary"><i class="fas fa-sign-out-alt"></i> Logout</button>
                 </div>
             </div>
@@ -159,6 +165,7 @@ requireLogin();
     
     <script src="assets/js/app.js"></script>
     <script src="assets/js/calendar.js"></script>
+    <script src="assets/js/notifications.js"></script>
     <script>
         // Register service worker for PWA
         if ('serviceWorker' in navigator) {

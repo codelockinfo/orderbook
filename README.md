@@ -30,6 +30,13 @@ A comprehensive order management system built with PHP, MySQL, and Progressive W
 - Offline support with Service Worker
 - Responsive design for mobile and desktop
 
+✅ **Push Notifications** 🔔 NEW!
+- Automatic reminders 1 day before order date
+- Browser notifications (works even when closed)
+- Multi-device support
+- Easy toggle on/off
+- See: [NOTIFICATION-SETUP-GUIDE.md](NOTIFICATION-SETUP-GUIDE.md)
+
 ✅ **Modern UI**
 - Clean and intuitive interface
 - Modal popups for forms

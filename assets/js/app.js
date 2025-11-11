@@ -308,6 +308,26 @@ orderForm.addEventListener('submit', async (e) => {
         if (data.success) {
             orderModal.classList.remove('show');
             loadOrders();
+            
+            // Show notification message if available
+            if (data.notification) {
+                if (data.notification.sent) {
+                    showNotificationToast(data.notification.message, 'success');
+                    
+                    // Also send browser notification if permission granted
+                    if (Notification.permission === 'granted') {
+                        new Notification('🔔 Auto Notification Sent!', {
+                            body: data.notification.message,
+                            tag: 'order-auto-notification'
+                        });
+                    }
+                } else if (data.notification.scheduled) {
+                    showNotificationToast(data.notification.message, 'info');
+                }
+            } else {
+                // Default success message if no notification info
+                showNotificationToast(data.message, 'success');
+            }
         } else {
             alert(data.message);
         }
@@ -435,6 +455,49 @@ logoutBtn.addEventListener('click', async () => {
         console.error('Error logging out:', error);
     }
 });
+
+// Show notification toast
+function showNotificationToast(message, type = 'info') {
+    // Check if toast container exists
+    let toastContainer = document.getElementById('toastContainer');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'toastContainer';
+        toastContainer.style.cssText = 'position: fixed; top: 80px; right: 20px; z-index: 10000;';
+        document.body.appendChild(toastContainer);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    
+    const colors = {
+        success: '#4CAF50',
+        error: '#f44336',
+        info: '#2196F3',
+        warning: '#ff9800'
+    };
+    
+    toast.style.cssText = `
+        background: ${colors[type] || colors.info};
+        color: white;
+        padding: 16px 24px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        animation: slideIn 0.3s ease;
+        max-width: 350px;
+        font-size: 14px;
+        line-height: 1.4;
+    `;
+    toast.textContent = message;
+
+    toastContainer.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }, 5000);
+}
 
 // Initialize
 loadOrders();

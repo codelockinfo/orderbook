@@ -1,6 +1,6 @@
 // Service Worker for PWA
 
-const CACHE_NAME = 'orderbook-v1';
+const CACHE_NAME = 'orderbook-v2-notifications';
 const urlsToCache = [
   '/orderbook/',
   '/orderbook/index.php',
@@ -75,15 +75,48 @@ async function syncOrders() {
 
 // Push Notifications
 self.addEventListener('push', (event) => {
-  const options = {
-    body: event.data ? event.data.text() : 'New notification',
-    icon: '/orderbook/assets/images/icon-192.png',
-    badge: '/orderbook/assets/images/icon-72.png',
-    vibrate: [200, 100, 200]
+  let notificationData = {
+    title: 'Order Reminder',
+    body: 'You have an upcoming order tomorrow!',
+    tag: 'order-reminder',
+    data: {},
+    vibrate: [200, 100, 200],
+    requireInteraction: false
   };
+
+  // Parse notification data if available
+  if (event.data) {
+    try {
+      const payload = event.data.json();
+      notificationData = {
+        title: payload.title || notificationData.title,
+        body: payload.body || notificationData.body,
+        tag: payload.tag || notificationData.tag,
+        data: payload.data || {},
+        vibrate: payload.vibrate || [200, 100, 200],
+        requireInteraction: payload.requireInteraction || false
+      };
+      
+      // Only include icon if provided in payload (icons must exist)
+      if (payload.icon) notificationData.icon = payload.icon;
+      if (payload.badge) notificationData.badge = payload.badge;
+      
+      // Only include actions if icon paths are provided
+      if (payload.actions) {
+        notificationData.actions = payload.actions;
+      }
+    } catch (e) {
+      console.error('Error parsing notification data:', e);
+      try {
+        notificationData.body = event.data.text();
+      } catch (textError) {
+        notificationData.body = 'You have a notification';
+      }
+    }
+  }
   
   event.waitUntil(
-    self.registration.showNotification('Order Book', options)
+    self.registration.showNotification(notificationData.title, notificationData)
   );
 });
 
@@ -91,8 +124,31 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   
+  const action = event.action;
+  const notificationData = event.notification.data || {};
+  
+  if (action === 'close') {
+    // Just close the notification
+    return;
+  }
+  
+  // Default action or 'view' action
+  const urlToOpen = notificationData.url || '/orderbook/index.php';
+  
   event.waitUntil(
-    clients.openWindow('/orderbook/index.php')
+    clients.matchAll({ type: 'window', includeUncontrolled: true })
+      .then((clientList) => {
+        // Check if app is already open
+        for (let client of clientList) {
+          if (client.url.includes('/orderbook/') && 'focus' in client) {
+            return client.focus();
+          }
+        }
+        // Open new window if not already open
+        if (clients.openWindow) {
+          return clients.openWindow(urlToOpen);
+        }
+      })
   );
 });
 

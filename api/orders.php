@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../includes/NotificationService.php';
 
 header('Content-Type: application/json');
 
@@ -10,6 +11,9 @@ if (!isLoggedIn()) {
 
 $database = new Database();
 $db = $database->connect();
+
+// Initialize notification service
+$notificationService = new NotificationService($db);
 
 $method = $_SERVER['REQUEST_METHOD'];
 $action = $_GET['action'] ?? '';
@@ -94,7 +98,30 @@ else if ($method === 'POST' && $action === 'create') {
         
         $orderId = $db->lastInsertId();
         
-        echo json_encode(['success' => true, 'message' => 'Order created successfully', 'order_id' => $orderId]);
+        // Automatically process notifications for this order
+        $notificationResult = $notificationService->processOrderNotifications($orderId, $userId);
+        
+        $response = [
+            'success' => true, 
+            'message' => 'Order created successfully', 
+            'order_id' => $orderId
+        ];
+        
+        // Add notification info to response
+        if (isset($notificationResult['autoSent']) && $notificationResult['autoSent']) {
+            $response['notification'] = [
+                'sent' => true,
+                'message' => $notificationResult['message'],
+                'reminderNumber' => $notificationResult['reminderNumber'] ?? null
+            ];
+        } elseif (isset($notificationResult['scheduled']) && $notificationResult['scheduled']) {
+            $response['notification'] = [
+                'scheduled' => true,
+                'message' => $notificationResult['message']
+            ];
+        }
+        
+        echo json_encode($response);
     } catch (PDOException $e) {
         echo json_encode(['success' => false, 'message' => 'Failed to create order: ' . $e->getMessage()]);
     }
@@ -120,7 +147,29 @@ else if ($method === 'POST' && $action === 'update') {
         $stmt = $db->prepare("UPDATE orders SET order_number = ?, order_date = ?, order_time = ?, status = ? WHERE id = ? AND user_id = ? AND is_deleted = 0");
         $stmt->execute([$orderNumber, $orderDate, $orderTime, $status, $orderId, $userId]);
         
-        echo json_encode(['success' => true, 'message' => 'Order updated successfully']);
+        // Automatically process notifications for the updated order
+        $notificationResult = $notificationService->processOrderNotifications($orderId, $userId);
+        
+        $response = [
+            'success' => true, 
+            'message' => 'Order updated successfully'
+        ];
+        
+        // Add notification info to response
+        if (isset($notificationResult['autoSent']) && $notificationResult['autoSent']) {
+            $response['notification'] = [
+                'sent' => true,
+                'message' => $notificationResult['message'],
+                'reminderNumber' => $notificationResult['reminderNumber'] ?? null
+            ];
+        } elseif (isset($notificationResult['scheduled']) && $notificationResult['scheduled']) {
+            $response['notification'] = [
+                'scheduled' => true,
+                'message' => $notificationResult['message']
+            ];
+        }
+        
+        echo json_encode($response);
     } catch (PDOException $e) {
         echo json_encode(['success' => false, 'message' => 'Failed to update order: ' . $e->getMessage()]);
     }
