@@ -23,7 +23,7 @@ body {
 /* Header */
 header {
     background: white;
-    padding: 25px 35px;
+    padding: 25px;
     margin-bottom: 25px;
     border-radius: 25px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.08);
@@ -93,11 +93,12 @@ header h1 i {
 
 .auth-box {
     background: white;
-    padding: 45px 50px;
+    padding: 20px;
     border-radius: 25px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.15);
     width: 100%;
     max-width: 450px;
+    margin: 20px;
 }
 
 .auth-box h1 {
@@ -149,7 +150,7 @@ header h1 i {
 /* Filters Section */
 .filters-section {
     background: white;
-    padding: 30px 35px;
+    padding: 25px;
     margin-bottom: 25px;
     border-radius: 25px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.08);
@@ -248,6 +249,15 @@ header h1 i {
     transform: translateY(0);
 }
 
+#registerForm .btn-primary,
+#loginForm .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
 .btn-primary {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
@@ -323,7 +333,7 @@ kbd {
 
 .btn-sm {
     padding: 8px 10px;
-    font-size: 12px;
+    font-size: 12px;    
     border-radius: 10px;
     min-width: 36px;
     justify-content: center;
@@ -371,7 +381,7 @@ kbd {
     border-radius: 25px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.08);
     overflow: hidden;
-    padding: 30px 35px;
+    padding: 25px;
 }
 
 .table-container h3 {
@@ -418,7 +428,6 @@ kbd {
 table {
     width: 100%;
     border-collapse: collapse;
-    table-layout: fixed;
 }
 
 /* Column Widths and Alignment */
@@ -505,7 +514,7 @@ tbody tr:hover {
 
 .action-cell {
     display: flex;
-    gap: 6px;
+    gap: 10px;
     align-items: center;
     flex-wrap: nowrap;
     justify-content: center;
@@ -684,10 +693,10 @@ tbody tr:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 25px 30px;
+    padding: 25px;
     border-bottom: 2px solid #f0f0f0;
     background: linear-gradient(135deg, #f8f9ff 0%, #f0f0ff 100%);
-    border-radius: 25px 25px 0 0;
+    border-radius: 25px 0 0 0;
 }
 
 .modal-header h2 {
@@ -725,6 +734,7 @@ tbody tr:hover {
     align-items: center;
     justify-content: center;
     border-radius: 50%;
+    padding-bottom: 7px;
 }
 
 .close:hover {
@@ -734,14 +744,14 @@ tbody tr:hover {
 }
 
 .modal form {
-    padding: 25px 30px;
+    padding: 25px;
 }
 
 .modal-footer {
     display: flex;
     justify-content: flex-end;
     gap: 12px;
-    padding: 20px 30px 25px;
+    padding: 20px 20px 25px;
     border-top: 2px solid #f0f0f0;
     margin-top: 20px;
     background: linear-gradient(135deg, #fafafe 0%, #f8f8ff 100%);
@@ -766,13 +776,17 @@ tbody tr:hover {
 /* Calendar Styles */
 #calendarView {
     padding: 30px;
+    max-width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
 }
 
 .calendar-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 .calendar-header h3 {
@@ -790,11 +804,18 @@ tbody tr:hover {
     gap: 10px;
 }
 
+.calendar-nav .btn {
+    font-size: 14px;
+    padding: 10px 8px;
+}
+
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: 10px;
     margin-top: 20px;
+    width: 100%;
+    max-width: 100%;
 }
 
 .calendar-day-header {
@@ -818,6 +839,8 @@ tbody tr:hover {
     transition: all 0.3s ease;
     position: relative;
     background: white;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 .calendar-day:hover {
@@ -845,7 +868,7 @@ tbody tr:hover {
 }
 
 .calendar-day-count {
-    font-size: 11px;
+    font-size: 12px;
     color: white;
     font-weight: 600;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -855,7 +878,7 @@ tbody tr:hover {
 }
 
 .order-details-view {
-    padding: 30px;
+    padding: 25px;
 }
 
 .detail-row {
@@ -925,39 +948,11 @@ tbody tr:hover {
         width: 100%;
         flex-direction: column;
         gap: 10px;
-        align-items: stretch;
     }
     
-    .user-info span {
-        text-align: center;
-        order: -1;
-        margin-bottom: 5px;
-    }
-    
-    /* Button row container for notification and calendar */
-    .button-row {
-        display: flex;
-        gap: 10px;
-        width: 100%;
-    }
-    
-    .button-row button {
-        flex: 1;
-        justify-content: center;
-        padding: 12px 16px;
-        font-size: 13px;
-    }
-    
-    #logoutBtn {
+    .user-info .btn {
         width: 100%;
         justify-content: center;
-        padding: 12px 20px;
-        font-size: 14px;
-    }
-    
-    /* Filters Section Responsive */
-    .filters-section {
-        padding: 20px 15px;
     }
     
     .filter-controls {
@@ -976,47 +971,12 @@ tbody tr:hover {
         width: 100%;
     }
     
-    .action-buttons {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
+    .form-row {
+        flex-direction: column;
+        gap: 0;
     }
-    
-    .action-buttons .btn {
-        width: 100%;
-        justify-content: center;
-        padding: 12px 16px;
-        font-size: 13px;
-    }
-    
-    .action-buttons .btn i {
-        font-size: 13px;
-    }
-    
-    /* Table Responsive */
-    .table-container {
-        padding: 20px 15px;
-    }
-    
-    .table-wrapper {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        margin: 0 -15px;
-        padding: 0 15px;
-        scroll-behavior: smooth;
-        position: relative;
-    }
-    
-    /* Add scroll shadow indicator on mobile */
-    .table-wrapper::after {
-        content: '';
-        position: absolute;
-        right: 0;
-        top: 0;
-        bottom: 0;
-        width: 30px;
-        background: linear-gradient(to left, rgba(255,255,255,0.9), transparent);
-        pointer-events: none;
+    .form-group {
+        margin-bottom: 15px;
     }
     
     table {
@@ -1026,118 +986,51 @@ tbody tr:hover {
     }
     
     th, td {
-        padding: 10px 6px;
-        white-space: nowrap;
+        padding: 10px 5px;
     }
     
-    /* Adjust column widths for mobile */
-    table th:nth-child(1),
-    table td:nth-child(1) {
-        width: 40px;
-    }
-    
-    table th:nth-child(2),
-    table td:nth-child(2) {
-        width: 40px;
-    }
-    
-    table th:nth-child(3),
-    table td:nth-child(3) {
-        width: 120px;
-    }
-    
-    table th:nth-child(4),
-    table td:nth-child(4) {
-        width: 100px;
-    }
-    
-    table th:nth-child(5),
-    table td:nth-child(5) {
-        width: 90px;
-    }
-    
-    table th:nth-child(6),
-    table td:nth-child(6) {
-        width: auto;
-        min-width: 140px;
-    }
-    
-    .action-cell {
-        flex-direction: row;
-        flex-wrap: wrap;
-        gap: 4px;
-        justify-content: center;
-    }
-    
-    .btn-sm {
-        padding: 6px 8px;
-        font-size: 10px;
-        min-width: 32px;
-    }
-    
-    .btn-sm i {
-        font-size: 10px;
-    }
-    
-    th {
-        font-size: 10px;
-    }
-    
-    /* Form Responsive */
-    .form-row {
-        flex-direction: column;
-    }
-    
-    /* Modal Responsive */
     .modal-content {
         width: 95%;
         max-width: 95%;
-        border-radius: 20px;
+        margin: 10px;
     }
-    
-    .modal-header {
+
+    .modal-header{
         padding: 20px 15px;
     }
     
-    .modal-header h2 {
-        font-size: 18px;
-    }
-    
-    .modal form {
-        padding: 20px 15px;
-    }
-    
-    .modal-footer {
-        flex-direction: column;
-        gap: 10px;
-    }
-    
-    .modal-footer .btn {
-        width: 100%;
-    }
-    
-    /* Calendar Responsive */
     #calendarView {
         padding: 15px;
     }
     
     .calendar-header {
-        flex-direction: column;
-        gap: 15px;
-        text-align: center;
+        margin-bottom: 15px;
     }
     
-    .calendar-nav {
-        justify-content: center;
+    .calendar-nav .btn {
+        font-size: 12px;
+        padding: 8px 10px;
     }
     
     .calendar-grid {
         gap: 5px;
     }
     
+    .calendar-day-header {
+        padding: 8px 4px;
+        font-size: 12px;
+        border-radius: 8px;
+    }
+    
     .calendar-day {
-        padding: 8px 5px;
-        font-size: 11px;
+        padding: 6px 4px;
+        font-size: 14px;
+        border-radius: 10px;
+        border-width: 1px;
+    }
+    
+    .calendar-day:hover {
+        transform: scale(1.03);
     }
     
     .calendar-day-number {
@@ -1146,120 +1039,64 @@ tbody tr:hover {
     }
     
     .calendar-day-count {
-        font-size: 9px;
-        padding: 2px 5px;
+        font-size: 10px;
+        padding: 2px 4px;
+        border-radius: 5px;
     }
     
-    .calendar-day:hover {
-        transform: scale(1.02);
+    .calendar-day.today {
+        border-width: 2px;
     }
-    
-    /* Detail View Responsive */
-    .order-details-view {
-        padding: 20px 15px;
-    }
-    
-    .detail-row {
+
+    .action-buttons {
         flex-direction: column;
-        padding: 12px 15px;
-        gap: 5px;
     }
-    
-    .detail-label {
+
+    .action-buttons .btn {
         width: 100%;
-        font-size: 13px;
-    }
-    
-    .detail-value {
-        font-size: 14px;
+        justify-content: center;
     }
 }
 
-/* Extra Small Devices */
-@media (max-width: 480px) {
-    .container {
-        padding: 10px 8px;
+@media (max-width: 832px) {
+    .table-container {
+        padding: 20px 15px;
     }
-    
-    header, .filters-section, .table-container {
-        border-radius: 15px;
-        padding: 15px 10px;
-    }
-    
-    header h1 {
-        font-size: 20px;
-    }
-    
-    .filters-section h3,
-    .table-container h3 {
-        font-size: 16px;
-    }
-    
-    /* Maintain grid layout on small screens */
-    .action-buttons .btn {
-        padding: 12px 10px;
-        font-size: 12px;
-    }
-    
-    .action-buttons .btn i {
-        font-size: 12px;
-    }
-    
-    /* Keep notification and calendar buttons in one row on small screens */
-    .button-row button {
-        padding: 10px 12px;
-        font-size: 12px;
-    }
-    
     .table-wrapper {
-        margin: 0 -10px;
-        padding: 0 10px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 12px;
+        margin: 0 -15px;
+        padding: 0 15px;
     }
     
     table {
-        min-width: 580px;
-        font-size: 10px;
+        min-width: 600px;
+        width: 100%;
     }
     
     th, td {
-        padding: 8px 4px;
-        font-size: 10px;
+        white-space: nowrap;
+        padding: 12px 8px;
     }
     
-    table th:nth-child(1),
-    table td:nth-child(1) {
-        width: 35px;
+    .action-cell {
+        justify-content: center;
+    }
+
+    header {
+        padding: 20px 15px;
     }
     
-    table th:nth-child(2),
-    table td:nth-child(2) {
-        width: 35px;
+    .modal form {
+        padding: 20px 15px;
     }
-    
-    table th:nth-child(3),
-    table td:nth-child(3) {
-        width: 110px;
+    .order-details-view {
+        padding: 20px 15px;
     }
-    
-    table th:nth-child(4),
-    table td:nth-child(4) {
-        width: 90px;
-    }
-    
-    table th:nth-child(5),
-    table td:nth-child(5) {
-        width: 80px;
-    }
-    
-    .btn-sm {
-        padding: 5px 6px;
-        font-size: 9px;
-        min-width: 28px;
-    }
-    
-    .btn-sm i {
-        font-size: 9px;
-    }
+    .filters-section {
+        padding: 20px 15px;
+    }   
 }
 
 /* Checkbox Styles */
@@ -1277,39 +1114,37 @@ input[type="checkbox"] {
     color: white;
     font-weight: 600;
     cursor: pointer;
-    font-size: 11px;
     transition: all 0.3s ease;
-    max-width: 110px;
 }
 
 /* Pending - Yellow/Orange (default) */
 .status-select,
 .status-select[data-status="Pending"] {
-    background: linear-gradient(135deg, #f7b733 0%, #fc4a1a 100%) !important;
+    background: linear-gradient(0, #f7b733 0%, #fc4a1a 100%) !important;
     box-shadow: 0 2px 8px rgba(247, 183, 51, 0.3);
 }
 
 /* Processing - Blue */
 .status-select[data-status="Processing"] {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    background: linear-gradient(0, #667eea 0%, #764ba2 100%) !important;
     box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
 /* Completed - Green */
 .status-select[data-status="Completed"] {
-    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%) !important;
+    background: linear-gradient(#11998e 0%, #38ef7d 100%) !important;
     box-shadow: 0 2px 8px rgba(56, 239, 125, 0.3);
 }
 
 /* Cancelled - Red */
 .status-select[data-status="Cancelled"] {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%) !important;
+    background: linear-gradient(0, #ff6b6b 0%, #ee5a6f 100%) !important;
     box-shadow: 0 2px 8px rgba(238, 90, 111, 0.3);
 }
 
 .status-select:focus {
     outline: none;
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
 }
 
 .status-select:hover {
@@ -1324,169 +1159,122 @@ input[type="checkbox"] {
     padding: 10px;
 }
 
-/* ===================================
-   Notification Styles
-   =================================== */
-
-/* Notification Button */
-#notificationBtn {
-    position: relative;
-    padding: 10px 18px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-#notificationBtn i {
-    font-size: 18px;
-}
-
-/* Notification Badge */
-.notification-badge {
-    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-    color: white;
-    font-size: 10px;
-    font-weight: 700;
-    padding: 2px 6px;
-    border-radius: 10px;
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    box-shadow: 0 2px 8px rgba(56, 239, 125, 0.4);
-    animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-    0%, 100% {
-        transform: scale(1);
-        opacity: 1;
+/* Extra small screens - prevent horizontal scroll and manage height */
+@media (max-width: 480px) {
+    #calendarModal .modal-header{
+        padding: 15px 10px;
     }
-    50% {
-        transform: scale(1.1);
-        opacity: 0.9;
+    #calendarView {
+        padding: 15px 10px;
+    }
+    
+    .calendar-header {
+        margin-bottom: 8px;
+    }
+    
+    .calendar-header h3 {
+        font-size: 15px;
+    }
+    
+    .calendar-nav .btn {
+        font-size: 11px;
+        padding: 6px 8px;
+        border-radius: 6px;
+    }
+    
+    .calendar-grid {
+        gap: 5px;
+    }
+    
+    .calendar-day-header {
+        padding: 4px 1px;
+        font-size: 9px;
+    }
+    
+    .calendar-day {
+        padding: 4px 2px;
+        border-radius: 6px;
+        aspect-ratio: 0.95;
+    }
+    
+    .calendar-day-number {
+        font-size: 11px;
+        margin-bottom: 2px;
+    }
+    
+    .calendar-day-count {
+        font-size: 8px;
+        padding: 1px 3px;
+    }
+    .detail-value {
+        font-size: 14px;
+    }
+    .modal-footer .btn {
+        font-size: 12px;
     }
 }
 
-/* Notification Toggle in Modal */
-.notification-settings {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 15px;
-    margin: 20px 0;
-}
-
-.notification-toggle-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 15px;
-}
-
-.notification-toggle-label {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.notification-toggle-label strong {
-    font-size: 16px;
-    color: #333;
-}
-
-.notification-toggle-label small {
-    font-size: 13px;
-    color: #666;
-}
-
-/* Toggle Switch */
-.toggle-switch {
-    position: relative;
-    display: inline-block;
-    width: 60px;
-    height: 32px;
-}
-
-.toggle-switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.toggle-slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: 0.4s;
-    border-radius: 32px;
-}
-
-.toggle-slider:before {
-    position: absolute;
-    content: "";
-    height: 24px;
-    width: 24px;
-    left: 4px;
-    bottom: 4px;
-    background-color: white;
-    transition: 0.4s;
-    border-radius: 50%;
-}
-
-.toggle-switch input:checked + .toggle-slider {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.toggle-switch input:checked + .toggle-slider:before {
-    transform: translateX(28px);
-}
-
-/* Toast Notification Styles */
-.toast {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 1.4;
-}
-
-/* Notification Permission Modal */
-.notification-permission-prompt {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 20px;
-    border-radius: 15px;
-    margin: 20px 0;
-    text-align: center;
-}
-
-.notification-permission-prompt h3 {
-    margin-bottom: 10px;
-    font-size: 20px;
-}
-
-.notification-permission-prompt p {
-    margin-bottom: 15px;
-    opacity: 0.9;
-}
-
-.notification-permission-prompt button {
-    background: white;
-    color: #667eea;
-    border: none;
-    padding: 12px 30px;
-    border-radius: 25px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.notification-permission-prompt button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+/* Very small screens - iPhone SE, Galaxy Fold, etc. (375px and below) */
+@media (max-width: 375px) {
+    #calendarModal .modal-header{
+        padding: 15px 10px;
+    }
+    .modal-header h2 {
+        font-size: 20px;
+    }
+    #calendarView {
+        padding: 10px 10px;
+    }
+    
+    .calendar-header {
+        margin-bottom: 6px;
+        gap: 8px;
+    }
+    
+    .calendar-header h3 {
+        font-size: 14px;
+    }
+    
+    .calendar-nav .btn {
+        font-size: 10px;
+        padding: 5px 7px;
+        border-radius: 6px;
+    }
+    
+    .calendar-grid {
+        gap: 5px;
+    }
+    
+    .calendar-day-header {
+        padding: 3px 1px;
+        font-size: 8px;
+        border-radius: 4px;
+    }
+    
+    .calendar-day {
+        padding: 1px 1px;
+        border-radius: 5px;
+        border-width: 1px;
+        aspect-ratio: 0.9;
+    }
+    
+    .calendar-day:hover {
+        transform: scale(1.02);
+    }
+    
+    .calendar-day-number {
+        font-size: 9px;
+        margin-bottom: 0px;
+    }
+    
+    .calendar-day-count {
+        font-size: 7px;
+        padding: 1px 2px;
+        border-radius: 3px;
+    }
+    
+    .calendar-day.today {
+        border-width: 1.5px;
+    }
 }
 
