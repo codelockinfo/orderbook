@@ -7,12 +7,32 @@ if (session_status() === PHP_SESSION_NONE) {
 // Timezone
 date_default_timezone_set('UTC');
 
-// Base URL
-define('BASE_URL', 'http://localhost/orderbook/');
+// Detect environment (Local vs Live)
+$server = $_SERVER['SERVER_NAME'] ?? $_SERVER['HTTP_HOST'] ?? '';
 
-// Error Reporting (set to 0 in production)
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+$isLocal = (
+    $server === 'localhost' ||
+    $server === '127.0.0.1' ||
+    str_contains($server, '.test') ||
+    str_contains($server, '.local')
+);
+
+// Auto-set BASE_URL
+if ($isLocal) {
+    define('BASE_URL', 'http://localhost/orderbook/');
+} else {
+    // 🔹 Replace with your LIVE URL
+    define('BASE_URL', 'http://orestgreen-bison-718478.hostingersite.com');
+}
+
+// Error Reporting
+if ($isLocal) {
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+} else {
+    error_reporting(0);
+    ini_set('display_errors', 0);
+}
 
 // Include database
 require_once __DIR__ . '/database.php';
@@ -35,4 +55,3 @@ function requireLogin() {
     }
 }
 ?>
-
