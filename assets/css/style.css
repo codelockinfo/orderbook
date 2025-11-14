@@ -28,6 +28,14 @@ header {
     border-radius: 25px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.08);
 }
+.logo {
+    display: flex;
+    gap: 10px;
+}
+
+.auth-box .logo {
+    justify-content: center;
+}
 
 .header-content {
     display: flex;
@@ -77,10 +85,10 @@ header h1 i {
 
 /* Button row container - desktop */
 .button-row {
-    width: 100%;
     display: flex;
     gap: 15px;
     align-items: center;
+    justify-content: right;
 }
 
 /* Auth Pages */
@@ -125,9 +133,9 @@ header h1 i {
     background-clip: text;
 }
 
-.auth-box h2 {
+.auth-box h3 {
     text-align: center;
-    margin-bottom: 35px;
+    margin-bottom: 20px;
     color: #333;
     font-weight: 600;
 }
@@ -933,6 +941,10 @@ tbody tr:hover {
     header {
         padding: 20px 15px;
     }
+
+    .logo {
+        justify-content: center;
+    }
     
     .header-content {
         flex-direction: column;
@@ -949,6 +961,10 @@ tbody tr:hover {
         width: 100%;
         flex-direction: column;
         gap: 10px;
+    }
+
+    .button-row {
+        width: 100%;
     }
     
     .user-info .btn {
