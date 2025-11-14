@@ -1,9 +1,23 @@
 <?php
-// Database Configuration
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_NAME', 'orderbook');
+
+// Detect environment
+$isLocal = in_array($_SERVER['SERVER_NAME'], ['localhost', '127.0.0.1']) 
+           || strpos($_SERVER['SERVER_NAME'], '.test') !== false;
+
+// Database Configuration Based on Environment
+if ($isLocal) {
+    // LOCAL Settings
+    define('DB_HOST', 'localhost');
+    define('DB_USER', 'root');
+    define('DB_PASS', '');
+    define('DB_NAME', 'orderbook');
+} else {
+    // LIVE Settings
+    define('DB_HOST', 'localhost');
+    define('DB_USER', 'u402017191_orderbook');
+    define('DB_PASS', '99@Orderbook');
+    define('DB_NAME', 'u402017191_orderbook');
+}
 
 class Database {
     private $host = DB_HOST;
@@ -31,4 +45,3 @@ class Database {
     }
 }
 ?>
-
