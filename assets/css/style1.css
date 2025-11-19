@@ -88,11 +88,7 @@ header h1 i {
     display: flex;
     gap: 15px;
     align-items: center;
-<<<<<<< HEAD
     flex-wrap: wrap;
-=======
-    justify-content: right;
->>>>>>> 7db02ae3f85e5077686da91b519a3a9ecc368f19
 }
 
 /* Auth Pages */

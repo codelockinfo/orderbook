@@ -265,13 +265,13 @@ class NotificationManager {
         if (!toastContainer) {
             toastContainer = document.createElement('div');
             toastContainer.id = 'toastContainer';
-            toastContainer.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 10000;';
+            toastContainer.style1.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 10000;';
             document.body.appendChild(toastContainer);
         }
 
         const toast = document.createElement('div');
         toast.className = `toast toast-${type}`;
-        toast.style.cssText = `
+        toast.style1.cssText = `
             background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : '#2196F3'};
             color: white;
             padding: 16px 24px;

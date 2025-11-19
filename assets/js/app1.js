@@ -569,7 +569,7 @@ function showNotificationToast(message, type = 'info') {
     if (!toastContainer) {
         toastContainer = document.createElement('div');
         toastContainer.id = 'toastContainer';
-        toastContainer.style.cssText = 'position: fixed; top: 80px; right: 20px; z-index: 10000;';
+        toastContainer.style1.cssText = 'position: fixed; top: 80px; right: 20px; z-index: 10000;';
         document.body.appendChild(toastContainer);
     }
 
@@ -583,7 +583,7 @@ function showNotificationToast(message, type = 'info') {
         warning: '#ff9800'
     };
     
-    toast.style.cssText = `
+    toast.style1.cssText = `
         background: ${colors[type] || colors.info};
         color: white;
         padding: 16px 24px;

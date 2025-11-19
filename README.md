@@ -132,9 +132,9 @@ orderbook/
 │   └── orders.php        # Orders CRUD API
 ├── assets/
 │   ├── css/
-│   │   └── style.css     # Main stylesheet
+│   │   └── style1.css     # Main stylesheet
 │   ├── js/
-│   │   ├── app.js        # Main application JS
+│   │   ├── app1.js        # Main application JS
 │   │   ├── auth.js       # Authentication JS
 │   │   └── calendar.js   # Calendar functionality
 │   └── images/           # PWA icons

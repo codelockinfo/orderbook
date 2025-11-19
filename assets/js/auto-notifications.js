@@ -133,7 +133,7 @@ class AutoNotificationTrigger {
         if (!toastContainer) {
             toastContainer = document.createElement('div');
             toastContainer.id = 'autoTriggerToast';
-            toastContainer.style.cssText = `
+            toastContainer.style1.cssText = `
                 position: fixed;
                 bottom: 20px;
                 right: 20px;

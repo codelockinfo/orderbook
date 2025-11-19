@@ -699,7 +699,7 @@ function escapeHtml(text) {
 function showAlert(message, type = 'info') {
     // Create alert element
     const alert = document.createElement('div');
-    alert.style.cssText = `
+    alert.style1.cssText = `
         position: fixed;
         top: 20px;
         right: 20px;

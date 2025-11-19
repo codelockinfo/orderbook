@@ -10,7 +10,7 @@ requireLogin();
     <meta name="theme-color" content="#4CAF50">
     <title>Evently</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/style1.css">
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="assets/images/icon-192.png">
 </head>
@@ -242,7 +242,7 @@ requireLogin();
         </div>
     </div>
     
-    <script src="assets/js/app.js"></script>
+    <script src="assets/js/app1.js"></script>
     <script src="assets/js/calendar.js"></script>
     <script src="assets/js/notifications.js"></script>
     <script src="assets/js/auto-notifications.js"></script>
