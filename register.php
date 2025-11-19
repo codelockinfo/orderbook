@@ -12,7 +12,7 @@ if (isLoggedIn()) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#4CAF50">
-    <title>Register - Order Book</title>
+    <title>Register - Evently</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="manifest" href="manifest.json">
@@ -21,8 +21,11 @@ if (isLoggedIn()) {
 <body>
     <div class="auth-container">
         <div class="auth-box">
-            <h1><i class="fas fa-chart-line"></i> Order Book</h1>
-            <h2>Register</h2>
+            <div class="logo">
+                <img src="assets/images/bookify logo (5).png" alt="Evently" height="50px" width="50px">
+                <h1>Evently</h1>
+            </div>
+            <h3>Register your account</h3>
             
             <form id="registerForm">
                 <div class="form-group">

@@ -43,6 +43,12 @@ QUICK START GUIDE
    Open config/config.php and verify:
    - BASE_URL = 'http://localhost/orderbook/'
 
+  Live: 
+   - DB_HOST = 'localhost'
+   - DB_USER = 'u402017191_orderbook'
+   - DB_PASS = '99@Orderbook'
+   - DB_NAME = 'u402017191_orderbook'
+
    Step 5: Create PWA Icons
    ------------------------
    Create icon files in assets/images/ folder:

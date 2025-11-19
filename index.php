@@ -8,7 +8,7 @@ requireLogin();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#4CAF50">
-    <title>Order Book</title>
+    <title>Evently</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="manifest" href="manifest.json">
@@ -18,7 +18,10 @@ requireLogin();
     <div class="container">
         <header>
             <div class="header-content">
-                <h1><i class="fas fa-chart-line"></i> Order Book</h1>
+                <div class="logo">
+                    <img src="assets/images/bookify logo (5).png" alt="Evently" height="50px" width="50px">
+                    <h1>Evently</h1>
+                </div>
                 <div class="user-info">
                     <span>Welcome, <strong><?php echo htmlspecialchars($_SESSION['username'] ?? 'User'); ?></strong></span>
                     <div class="button-row">
