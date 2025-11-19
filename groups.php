@@ -489,7 +489,7 @@ requireLogin();
         </div>
     </div>
     
-    <script src="assets/js/groups1.js"></script>
+    <script src="assets/js/groups2.js"></script>
     <script>
         // Logout Modal Elements
         const logoutModal = document.getElementById('logoutModal');

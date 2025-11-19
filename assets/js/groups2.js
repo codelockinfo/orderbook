@@ -37,38 +37,59 @@ document.addEventListener('DOMContentLoaded', function() {
     // Modal event listeners
     createGroupBtn?.addEventListener('click', () => {
         createGroupModal.style.display = 'flex';
+        createGroupModal.classList.add('show');
         createGroupForm.reset();
     });
     
     viewAvailableBtn?.addEventListener('click', () => {
         loadAvailableGroups();
         availableGroupsModal.style.display = 'flex';
+        availableGroupsModal.classList.add('show');
     });
     
     myRequestsBtn?.addEventListener('click', () => {
         loadMyRequests();
         myRequestsModal.style.display = 'flex';
+        myRequestsModal.classList.add('show');
     });
     
     closeButtons.forEach(btn => {
         btn.addEventListener('click', function() {
-            this.closest('.modal').style.display = 'none';
+            const modal = this.closest('.modal');
+            if (modal) {
+                modal.style.display = 'none';
+                modal.classList.remove('show');
+            }
         });
     });
     
     window.addEventListener('click', function(event) {
         if (event.target.classList.contains('modal')) {
             event.target.style.display = 'none';
+            event.target.classList.remove('show');
         }
     });
     
     // Form submissions
     createGroupForm?.addEventListener('submit', handleCreateGroup);
     
+    // Cancel buttons
+    document.getElementById('cancelCreateBtn')?.addEventListener('click', () => {
+        createGroupModal.style.display = 'none';
+        createGroupModal.classList.remove('show');
+        createGroupForm.reset();
+    });
+    
+    document.getElementById('cancelInviteBtn')?.addEventListener('click', () => {
+        inviteUserModal.style.display = 'none';
+        inviteUserModal.classList.remove('show');
+    });
+    
     // Delete confirmation modal handlers
     confirmDeleteBtn?.addEventListener('click', handleConfirmDelete);
     cancelDeleteBtn?.addEventListener('click', () => {
         deleteConfirmModal.style.display = 'none';
+        deleteConfirmModal.classList.remove('show');
     });
 });
 
@@ -156,6 +177,12 @@ async function handleCreateGroup(e) {
         return;
     }
     
+    // Disable submit button during creation
+    const submitBtn = createGroupForm.querySelector('button[type="submit"]');
+    const originalBtnText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+    
     try {
         const response = await fetch(`${API_BASE}groups.php?action=create`, {
             method: 'POST',
@@ -168,16 +195,26 @@ async function handleCreateGroup(e) {
         const data = await response.json();
         
         if (data.success) {
-            showAlert('Group created successfully!', 'success');
+            // Close modal first
             createGroupModal.style.display = 'none';
+            createGroupModal.classList.remove('show');
             createGroupForm.reset();
-            loadGroups();
+            
+            // Show success message
+            showAlert('Group created successfully!', 'success');
+            
+            // Reload groups to show the new group immediately
+            await loadGroups();
         } else {
             showAlert('Error: ' + data.message, 'error');
         }
     } catch (error) {
         console.error('Error creating group:', error);
         showAlert('Failed to create group', 'error');
+    } finally {
+        // Re-enable submit button
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnText;
     }
 }
 
@@ -251,6 +288,7 @@ async function viewGroupDetails(groupId) {
             `;
             
             viewGroupModal.style.display = 'flex';
+            viewGroupModal.classList.add('show');
         } else {
             showAlert('Error: ' + data.message, 'error');
         }
@@ -300,6 +338,7 @@ function deleteGroup(groupId, groupName) {
     deleteGroupId.value = groupId;
     deleteGroupName.textContent = `"${groupName}"`;
     deleteConfirmModal.style.display = 'flex';
+    deleteConfirmModal.classList.add('show');
 }
 
 // Handle confirm delete
@@ -328,9 +367,15 @@ async function handleConfirmDelete() {
         const data = await response.json();
         
         if (data.success) {
-            showAlert('Group deleted successfully!', 'success');
+            // Close modal first
             deleteConfirmModal.style.display = 'none';
-            loadGroups();
+            deleteConfirmModal.classList.remove('show');
+            
+            // Show success message
+            showAlert('Group deleted successfully!', 'success');
+            
+            // Reload groups to update the list immediately
+            await loadGroups();
         } else {
             showAlert('Error: ' + data.message, 'error');
         }
@@ -348,6 +393,7 @@ async function handleConfirmDelete() {
 async function openInviteModal(groupId) {
     document.getElementById('inviteGroupId').value = groupId;
     inviteUserModal.style.display = 'flex';
+    inviteUserModal.classList.add('show');
     
     // Load available users
     await loadAvailableUsers(groupId);
@@ -520,6 +566,7 @@ async function sendJoinRequest(groupId, groupName) {
         if (data.success) {
             showAlert('Join request sent successfully!', 'success');
             availableGroupsModal.style.display = 'none';
+            availableGroupsModal.classList.remove('show');
             loadGroups();
             loadAvailableGroups();
         } else {
@@ -625,6 +672,7 @@ async function acceptInvitation(requestId) {
         if (data.success) {
             showAlert('Invitation accepted! You are now a member of the group.', 'success');
             myRequestsModal.style.display = 'none';
+            myRequestsModal.classList.remove('show');
             loadMyRequests();
             loadGroups();
             loadRequestCount();
@@ -699,7 +747,7 @@ function escapeHtml(text) {
 function showAlert(message, type = 'info') {
     // Create alert element
     const alert = document.createElement('div');
-    alert.style1.cssText = `
+    alert.style.cssText = `
         position: fixed;
         top: 20px;
         right: 20px;
