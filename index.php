@@ -27,8 +27,12 @@ requireLogin();
                             <span id="notificationBadge" class="notification-badge" style="display: none; color: #fff;">ON</span>
                         </button>
                         <button id="calendarViewBtn" class="btn btn-secondary"><i class="fas fa-calendar-alt"></i> Calendar</button>
+                        <a href="groups.php" id="myGroupsLink" class="btn btn-primary" style="position: relative;">
+                            <i class="fas fa-users"></i> My Groups
+                            <span id="requestCountBadge" class="request-count-badge" style="display: none;">0</span>
+                        </a>
+                        <button id="logoutBtn" class="btn btn-secondary"><i class="fas fa-sign-out-alt"></i> Logout</button>
                     </div>
-                    <button id="logoutBtn" class="btn btn-secondary"><i class="fas fa-sign-out-alt"></i> Logout</button>
                 </div>
             </div>
         </header>
@@ -43,6 +47,11 @@ requireLogin();
                 </div>
                 
                 <div class="filter-controls">
+                    <select id="groupFilter" style="min-width: 200px;">
+                        <option value="">All Groups</option>
+                        <!-- Groups will be loaded dynamically -->
+                    </select>
+                    
                     <input type="date" id="dateFilter" placeholder="mm/dd/yyyy">
                     
                     <select id="statusFilter">
@@ -80,7 +89,8 @@ requireLogin();
                             <th>Order Number</th>
                             <th>Date</th>
                             <th>Time</th>
-                            <th>Action</th>
+                            <th>Group</th>
+                            <th style="text-align: right;">Action</th>
                         </tr>
                     </thead>
                         <tbody id="ordersTableBody">
@@ -124,6 +134,14 @@ requireLogin();
                 </div>
                 
                 <div class="form-group">
+                    <label for="orderGroup">Group</label>
+                    <select id="orderGroup" name="group_id">
+                        <option value="">No Group</option>
+                        <!-- Groups will be loaded dynamically -->
+                    </select>
+                </div>
+                
+                <div class="form-group">
                     <label for="orderStatus">Status</label>
                     <select id="orderStatus" name="status">
                         <option value="Pending">Pending</option>
@@ -163,11 +181,116 @@ requireLogin();
         </div>
     </div>
     
+    <!-- Delete Order Confirmation Modal -->
+    <div id="deleteOrderModal" class="modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%); border-bottom: 2px solid #ef5350;">
+                <h2 style="color: #c62828;"><i class="fas fa-trash-alt"></i> Delete Order</h2>
+                <span class="close" id="closeDeleteOrderModal">&times;</span>
+            </div>
+            <div style="padding: 30px; text-align: center;">
+                <div style="font-size: 64px; color: #ef5350; margin-bottom: 20px;">
+                    <i class="fas fa-trash-alt"></i>
+                </div>
+                <h3 style="color: #333; margin-bottom: 15px; font-size: 20px;">Are you sure?</h3>
+                <p id="deleteOrderMessage" style="color: #666; margin-bottom: 10px; line-height: 1.6;">
+                    You are about to delete this order.
+                </p>
+                <p style="color: #f44336; font-weight: 600; margin-top: 15px;">
+                    <i class="fas fa-exclamation-circle"></i> This action cannot be undone!
+                </p>
+                <input type="hidden" id="deleteOrderId">
+            </div>
+            <div class="modal-footer" style="justify-content: center; gap: 15px; padding: 20px 25px;">
+                <button type="button" class="btn btn-secondary" id="cancelDeleteOrderBtn">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteOrderBtn">
+                    <i class="fas fa-trash-alt"></i> Delete Order
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutModal" class="modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%); border-bottom: 2px solid #ef5350;">
+                <h2 style="color: #c62828;"><i class="fas fa-sign-out-alt"></i> Confirm Logout</h2>
+                <span class="close" id="closeLogoutModal">&times;</span>
+            </div>
+            <div style="padding: 30px; text-align: center;">
+                <div style="font-size: 64px; color: #667eea; margin-bottom: 20px;">
+                    <i class="fas fa-sign-out-alt"></i>
+                </div>
+                <h3 style="color: #333; margin-bottom: 15px; font-size: 20px;">Are you sure you want to logout?</h3>
+                <p style="color: #666; margin-bottom: 20px; line-height: 1.6;">
+                    You will be redirected to the login page.
+                </p>
+            </div>
+            <div class="modal-footer" style="justify-content: center; gap: 15px; padding: 20px 25px;">
+                <button type="button" class="btn btn-secondary" id="cancelLogoutBtn">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="confirmLogoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+    </div>
+    
     <script src="assets/js/app.js"></script>
     <script src="assets/js/calendar.js"></script>
     <script src="assets/js/notifications.js"></script>
     <script src="assets/js/auto-notifications.js"></script>
+    <style>
+        .request-count-badge {
+            color: white!important;
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #6f41a1;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+    </style>
     <script>
+        // Load request count badge
+        async function loadRequestCount() {
+            const requestCountBadge = document.getElementById('requestCountBadge');
+            if (!requestCountBadge) return;
+            
+            try {
+                const response = await fetch('api/groups.php?action=my-requests-count');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const count = data.count || 0;
+                    if (count > 0) {
+                        requestCountBadge.textContent = count > 99 ? '99+' : count;
+                        requestCountBadge.style.display = 'flex';
+                    } else {
+                        requestCountBadge.style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading request count:', error);
+            }
+        }
+        
+        // Load count on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadRequestCount();
+        });
+        
         // Register service worker for PWA
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js')

@@ -56,3 +56,52 @@ INSERT INTO orders (order_number, order_date, order_time, status, user_id) VALUE
 ('ORD-2024014', '2024-10-30', '14:00:00', 'Cancelled', 1),
 ('ORD-2024015', '2024-10-29', '10:30:00', 'Completed', 1);
 
+-- Groups Table
+CREATE TABLE IF NOT EXISTS groups (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    created_by INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_created_by (created_by)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Group Members Table
+CREATE TABLE IF NOT EXISTS group_members (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    group_id INT NOT NULL,
+    user_id INT NOT NULL,
+    role ENUM('ADMIN', 'MEMBER') DEFAULT 'MEMBER',
+    status ENUM('active', 'pending') DEFAULT 'active',
+    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_group_user (group_id, user_id),
+    INDEX idx_group_id (group_id),
+    INDEX idx_user_id (user_id),
+    INDEX idx_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Group Join Requests Table
+CREATE TABLE IF NOT EXISTS group_join_requests (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    group_id INT NOT NULL,
+    user_id INT NOT NULL,
+    status ENUM('pending', 'accepted', 'rejected') DEFAULT 'pending',
+    requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    responded_at TIMESTAMP NULL,
+    responded_by INT NULL,
+    requested_by INT NULL COMMENT 'User who initiated the request (NULL = user themselves, admin_id = invited by admin)',
+    FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (responded_by) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (requested_by) REFERENCES users(id) ON DELETE SET NULL,
+    UNIQUE KEY unique_pending_request (group_id, user_id, status),
+    INDEX idx_group_id (group_id),
+    INDEX idx_user_id (user_id),
+    INDEX idx_status (status),
+    INDEX idx_requested_by (requested_by)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+

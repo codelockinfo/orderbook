@@ -77,10 +77,10 @@ header h1 i {
 
 /* Button row container - desktop */
 .button-row {
-    width: 100%;
     display: flex;
     gap: 15px;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 /* Auth Pages */
@@ -265,6 +265,18 @@ header h1 i {
     width: 100%;
 }
 
+a.btn-primary,
+a.btn {
+    text-decoration: none;
+    width: auto;
+}
+
+.button-row .btn-primary,
+.button-row a.btn-primary {
+    width: auto;
+    flex: 0 0 auto;
+}
+
 .btn-primary:hover {
     background: linear-gradient(135deg, #5568d3 0%, #6a4190 100%);
 }
@@ -289,6 +301,13 @@ header h1 i {
 .btn-danger:hover {
     background: linear-gradient(135deg, #ee5253 0%, #d84857 100%);
     box-shadow: 0 6px 20px rgba(238, 90, 111, 0.4);
+}
+
+.btn-danger:disabled,
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
 }
 
 .btn-secondary {
@@ -518,7 +537,7 @@ tbody tr:hover {
     gap: 10px;
     align-items: center;
     flex-wrap: nowrap;
-    justify-content: center;
+    justify-content: flex-end;
 }
 
 .status-badge {
@@ -667,10 +686,13 @@ tbody tr:hover {
     background-color: rgba(102, 126, 234, 0.15);
     backdrop-filter: blur(8px);
     animation: fadeIn 0.3s ease;
+    align-items: center;
+    justify-content: center;
 }
 
+.modal[style*="display: block"],
 .modal.show {
-    display: flex;
+    display: flex !important;
     align-items: center;
     justify-content: center;
 }
@@ -951,9 +973,30 @@ tbody tr:hover {
         gap: 10px;
     }
     
+    .button-row {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px;
+        width: 100%;
+        flex-wrap: nowrap;
+        align-items: stretch;
+    }
+    
     .user-info .btn {
         width: 100%;
         justify-content: center;
+    }
+    
+    .button-row .btn,
+    .button-row a.btn,
+    .button-row .btn-primary,
+    .button-row a.btn-primary {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        box-sizing: border-box;
     }
     
     .filter-controls {
@@ -1050,11 +1093,13 @@ tbody tr:hover {
     }
 
     .action-buttons {
-        flex-direction: column;
+        flex-direction: row;
+        flex-wrap: wrap;
     }
 
     .action-buttons .btn {
-        width: 100%;
+        flex: 1;
+        min-width: 150px;
         justify-content: center;
     }
 }
@@ -1082,7 +1127,7 @@ tbody tr:hover {
     }
     
     .action-cell {
-        justify-content: center;
+        justify-content: flex-end;
     }
 
     header {
@@ -1212,6 +1257,27 @@ input[type="checkbox"] {
     }
     .modal-footer .btn {
         font-size: 12px;
+    }
+    
+    /* Ensure button-row is 2 columns on small screens */
+    .button-row {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px;
+        align-items: stretch;
+    }
+    
+    .button-row .btn,
+    .button-row a.btn,
+    .button-row .btn-primary,
+    .button-row a.btn-primary {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        box-sizing: border-box;
+        font-size: 13px;
+        padding: 10px 8px;
     }
 }
 

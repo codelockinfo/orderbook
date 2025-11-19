@@ -24,27 +24,36 @@ if ($method === 'GET' && $action === 'list') {
     $search = $_GET['search'] ?? '';
     $status = $_GET['status'] ?? '';
     $date = $_GET['date'] ?? '';
+    $groupId = $_GET['group_id'] ?? '';
     
-    $query = "SELECT * FROM orders WHERE user_id = ? AND is_deleted = 0";
+    $query = "SELECT o.*, g.name as group_name 
+              FROM orders o 
+              LEFT JOIN groups g ON o.group_id = g.id 
+              WHERE o.user_id = ? AND o.is_deleted = 0";
     $params = [$userId];
     
     if (!empty($search)) {
-        $query .= " AND order_number LIKE ?";
+        $query .= " AND o.order_number LIKE ?";
         $searchTerm = "%$search%";
         $params[] = $searchTerm;
     }
     
     if (!empty($status)) {
-        $query .= " AND status = ?";
+        $query .= " AND o.status = ?";
         $params[] = $status;
     }
     
     if (!empty($date)) {
-        $query .= " AND order_date = ?";
+        $query .= " AND o.order_date = ?";
         $params[] = $date;
     }
     
-    $query .= " ORDER BY order_number DESC";
+    if (!empty($groupId)) {
+        $query .= " AND o.group_id = ?";
+        $params[] = $groupId;
+    }
+    
+    $query .= " ORDER BY o.order_number DESC";
     
     try {
         $stmt = $db->prepare($query);
@@ -63,7 +72,7 @@ else if ($method === 'GET' && $action === 'get' && isset($_GET['id'])) {
     $userId = getCurrentUserId();
     
     try {
-        $stmt = $db->prepare("SELECT * FROM orders WHERE id = ? AND user_id = ? AND is_deleted = 0");
+        $stmt = $db->prepare("SELECT o.*, g.name as group_name FROM orders o LEFT JOIN groups g ON o.group_id = g.id WHERE o.id = ? AND o.user_id = ? AND o.is_deleted = 0");
         $stmt->execute([$orderId, $userId]);
         $order = $stmt->fetch();
         
@@ -86,15 +95,36 @@ else if ($method === 'POST' && $action === 'create') {
     $orderDate = $data['order_date'] ?? '';
     $orderTime = $data['order_time'] ?? '';
     $status = $data['status'] ?? 'Pending';
+    $groupId = !empty($data['group_id']) ? intval($data['group_id']) : null;
     
     if (empty($orderNumber) || empty($orderDate) || empty($orderTime)) {
         echo json_encode(['success' => false, 'message' => 'Order number, date and time are required']);
         exit;
     }
     
+    // Validate group_id if provided
+    if ($groupId !== null) {
+        try {
+            // Check if user has access to this group
+            $stmt = $db->prepare("
+                SELECT g.id FROM groups g 
+                LEFT JOIN group_members gm ON g.id = gm.group_id 
+                WHERE g.id = ? AND (g.created_by = ? OR (gm.user_id = ? AND gm.status = 'active'))
+            ");
+            $stmt->execute([$groupId, $userId, $userId]);
+            if (!$stmt->fetch()) {
+                echo json_encode(['success' => false, 'message' => 'You do not have access to this group']);
+                exit;
+            }
+        } catch (PDOException $e) {
+            echo json_encode(['success' => false, 'message' => 'Failed to validate group: ' . $e->getMessage()]);
+            exit;
+        }
+    }
+    
     try {
-        $stmt = $db->prepare("INSERT INTO orders (order_number, order_date, order_time, status, user_id) VALUES (?, ?, ?, ?, ?)");
-        $stmt->execute([$orderNumber, $orderDate, $orderTime, $status, $userId]);
+        $stmt = $db->prepare("INSERT INTO orders (order_number, order_date, order_time, status, user_id, group_id) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$orderNumber, $orderDate, $orderTime, $status, $userId, $groupId]);
         
         $orderId = $db->lastInsertId();
         
@@ -137,15 +167,36 @@ else if ($method === 'POST' && $action === 'update') {
     $orderDate = $data['order_date'] ?? '';
     $orderTime = $data['order_time'] ?? '';
     $status = $data['status'] ?? 'Pending';
+    $groupId = !empty($data['group_id']) ? intval($data['group_id']) : null;
     
     if ($orderId <= 0) {
         echo json_encode(['success' => false, 'message' => 'Invalid order ID']);
         exit;
     }
     
+    // Validate group_id if provided
+    if ($groupId !== null) {
+        try {
+            // Check if user has access to this group
+            $stmt = $db->prepare("
+                SELECT g.id FROM groups g 
+                LEFT JOIN group_members gm ON g.id = gm.group_id 
+                WHERE g.id = ? AND (g.created_by = ? OR (gm.user_id = ? AND gm.status = 'active'))
+            ");
+            $stmt->execute([$groupId, $userId, $userId]);
+            if (!$stmt->fetch()) {
+                echo json_encode(['success' => false, 'message' => 'You do not have access to this group']);
+                exit;
+            }
+        } catch (PDOException $e) {
+            echo json_encode(['success' => false, 'message' => 'Failed to validate group: ' . $e->getMessage()]);
+            exit;
+        }
+    }
+    
     try {
-        $stmt = $db->prepare("UPDATE orders SET order_number = ?, order_date = ?, order_time = ?, status = ? WHERE id = ? AND user_id = ? AND is_deleted = 0");
-        $stmt->execute([$orderNumber, $orderDate, $orderTime, $status, $orderId, $userId]);
+        $stmt = $db->prepare("UPDATE orders SET order_number = ?, order_date = ?, order_time = ?, status = ?, group_id = ? WHERE id = ? AND user_id = ? AND is_deleted = 0");
+        $stmt->execute([$orderNumber, $orderDate, $orderTime, $status, $groupId, $orderId, $userId]);
         
         // Automatically process notifications for the updated order
         $notificationResult = $notificationService->processOrderNotifications($orderId, $userId);
