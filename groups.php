@@ -10,7 +10,7 @@ requireLogin();
     <meta name="theme-color" content="#667eea">
     <title>My Groups - Order Book</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/style1.css">
+    <link rel="stylesheet" href="assets/css/style2.css">
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="assets/images/icon-192.png">
     <style>

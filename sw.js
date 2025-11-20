@@ -6,9 +6,9 @@ const urlsToCache = [
   '/orderbook/index.php',
   '/orderbook/login.php',
   '/orderbook/register.php',
-  '/orderbook/assets/css/style1.css',
-  '/orderbook/assets/js/app1.js',
-  '/orderbook/assets/js/auth.js',
+  '/orderbook/assets/css/style2.css',
+  '/orderbook/assets/js/app2.js',
+  '/orderbook/assets/js/auth1.js',
   '/orderbook/assets/js/calendar.js',
   '/orderbook/manifest.json'
 ];

@@ -42,7 +42,7 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notification Diagnostics</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/style1.css">
+    <link rel="stylesheet" href="assets/css/style2.css">
 </head>
 <body>
     <div class="container">
@@ -287,7 +287,7 @@ try {
         </main>
     </div>
     
-    <script src="assets/js/notifications.js"></script>
+    <script src="assets/js/notification1.js"></script>
     <script>
         // Check browser status
         function updateBrowserStatus() {

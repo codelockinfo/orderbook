@@ -26,12 +26,12 @@ FRONTEND PAGES
 
 ASSETS - CSS
 ------------
-✓ assets/css/style1.css        - Complete styling (1000+ lines)
+✓ assets/css/style2.css        - Complete styling (1000+ lines)
 
 ASSETS - JAVASCRIPT
 -------------------
-✓ assets/js/app1.js            - Main application logic
-✓ assets/js/auth.js           - Authentication handling
+✓ assets/js/app2.js            - Main application logic
+✓ assets/js/auth1.js           - Authentication handling
 ✓ assets/js/calendar.js       - Calendar view functionality
 
 ASSETS - IMAGES

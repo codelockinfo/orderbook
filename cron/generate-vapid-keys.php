@@ -29,7 +29,7 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
         echo "NEXT STEPS:\n";
         echo "========================================\n";
         echo "1. Copy the PUBLIC KEY\n";
-        echo "2. Update assets/js/notifications.js:\n";
+        echo "2. Update assets/js/notification1.js:\n";
         echo "   Find: this.publicVapidKey = '...'\n";
         echo "   Replace with your PUBLIC KEY\n\n";
         echo "3. Copy the PRIVATE KEY\n";
