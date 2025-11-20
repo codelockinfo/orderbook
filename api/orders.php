@@ -26,11 +26,17 @@ if ($method === 'GET' && $action === 'list') {
     $date = $_GET['date'] ?? '';
     $groupId = $_GET['group_id'] ?? '';
     
-    $query = "SELECT o.*, g.name as group_name 
-              FROM orders o 
-              LEFT JOIN groups g ON o.group_id = g.id 
-              WHERE o.user_id = ? AND o.is_deleted = 0";
-    $params = [$userId];
+$query = "SELECT DISTINCT o.*, g.name as group_name 
+          FROM orders o 
+          LEFT JOIN groups g ON o.group_id = g.id 
+          LEFT JOIN group_members gm ON o.group_id = gm.group_id AND gm.user_id = ? AND gm.status = 'active'
+          WHERE o.is_deleted = 0
+          AND (
+              o.user_id = ?
+              OR g.created_by = ?
+              OR gm.id IS NOT NULL
+          )";
+$params = [$userId, $userId, $userId];
     
     if (!empty($search)) {
         $query .= " AND o.order_number LIKE ?";
@@ -72,8 +78,20 @@ else if ($method === 'GET' && $action === 'get' && isset($_GET['id'])) {
     $userId = getCurrentUserId();
     
     try {
-        $stmt = $db->prepare("SELECT o.*, g.name as group_name FROM orders o LEFT JOIN groups g ON o.group_id = g.id WHERE o.id = ? AND o.user_id = ? AND o.is_deleted = 0");
-        $stmt->execute([$orderId, $userId]);
+        $stmt = $db->prepare("
+            SELECT o.*, g.name as group_name
+            FROM orders o
+            LEFT JOIN groups g ON o.group_id = g.id
+            LEFT JOIN group_members gm ON o.group_id = gm.group_id AND gm.user_id = ? AND gm.status = 'active'
+            WHERE o.id = ?
+              AND o.is_deleted = 0
+              AND (
+                  o.user_id = ?
+                  OR g.created_by = ?
+                  OR gm.id IS NOT NULL
+              )
+        ");
+        $stmt->execute([$userId, $orderId, $userId, $userId]);
         $order = $stmt->fetch();
         
         if ($order) {

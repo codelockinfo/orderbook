@@ -140,6 +140,84 @@ header h1 i {
     font-weight: 600;
 }
 
+.hidden {
+    display: none !important;
+}
+
+.auth-helper-links {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 15px;
+}
+
+.text-link {
+    background: none;
+    border: none;
+    color: #667eea;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 0;
+}
+
+.text-link:hover {
+    text-decoration: underline;
+}
+
+#forgotPasswordSection {
+    margin-top: 10px;
+}
+
+.forgot-header {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.forgot-header .back-link {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+}
+
+.instruction-text {
+    color: #666;
+    font-size: 14px;
+}
+
+.forgot-step {
+    display: none;
+}
+
+.forgot-step.active {
+    display: block;
+}
+
+.status-message {
+    display: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.status-message.show {
+    display: block;
+}
+
+.success-message {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.auth-box #forgotPasswordSection .btn {
+    width: 100%;
+    justify-content: center;
+}
+
 .auth-switch {
     text-align: center;
     margin-top: 20px;
