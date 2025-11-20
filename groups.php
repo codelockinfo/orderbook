@@ -16,9 +16,17 @@ requireLogin();
     <style>
         .groups-container {
             background: white;
-            padding: 30px;
+            padding: 25px;
             border-radius: 25px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+            justify-content: right;
         }
         
         .groups-grid {
@@ -99,7 +107,7 @@ requireLogin();
         }
         
         .group-actions .btn {
-            flex: 1;
+            flex: auto;
             min-width: 100px;
             font-size: 13px;
             padding: 8px 12px;
@@ -115,10 +123,6 @@ requireLogin();
             font-size: 64px;
             margin-bottom: 20px;
             opacity: 0.5;
-        }
-        
-        .modal-large {
-            max-width: 800px;
         }
         
         .members-list {
@@ -203,7 +207,7 @@ requireLogin();
             background: white;
             border: 2px solid #e9ecef;
             border-radius: 10px;
-            margin-bottom: 12px;
+            margin: 12px 0;
             transition: all 0.3s ease;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             gap: 15px;
@@ -264,7 +268,7 @@ requireLogin();
         }
         
         #inviteUsersList::-webkit-scrollbar {
-            width: 6px;
+            display: none;
         }
         
         #inviteUsersList::-webkit-scrollbar-track {
@@ -297,6 +301,80 @@ requireLogin();
             font-weight: 700;
             border: 2px solid white;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        @media (min-width: 925px) and (max-width: 1096px) {
+            header {
+                padding: 20px;
+            }
+            
+            .header-content {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 20px;
+                flex-direction: row;
+            }
+            
+            .logo {
+                justify-content: flex-start;
+            }
+            
+            header h1 {
+                font-size: 24px;
+                text-align: left;
+            }
+            
+            .user-info {
+                width: auto;
+                flex-direction: row;
+                gap: 12px;
+                flex: 1;
+                justify-content: flex-end;
+            }
+            
+            .button-row {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                width: auto;
+            }
+            
+            .button-row .btn {
+                padding: 10px 14px;
+                font-size: 13px;
+                min-width: auto;
+            }
+            
+            .button-row .btn i {
+                font-size: 13px;
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 924px) {
+            .button-row .btn {
+                width: 45%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .user-info {
+                width: 100%;
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .groups-container {
+                padding: 20px 15px;
+            }
+        }
+        @media (max-width: 375px) {
+            .groups-grid {
+                grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+            }
         }
     </style>
 </head>
@@ -385,7 +463,7 @@ requireLogin();
                 <h2><i class="fas fa-user-plus"></i> Invite User</h2>
                 <span class="close">&times;</span>
             </div>
-            <div style="padding: 25px; min-height: 200px;">
+            <div style="padding: 20px; min-height: 200px;">
                 <input type="hidden" id="inviteGroupId">
                 <div id="inviteUsersList" style="max-height: 400px; overflow-y: auto; margin-bottom: 20px;">
                     <div style="text-align: center; padding: 40px; color: #999;">
@@ -420,7 +498,7 @@ requireLogin();
                 <h2><i class="fas fa-bell"></i> My Group Invitations</h2>
                 <span class="close">&times;</span>
             </div>
-            <div style="padding: 25px;">
+            <div style="padding: 20px;">
                 <div id="myRequestsList" style="max-height: 500px; overflow-y: auto;">
                     <div style="text-align: center; padding: 40px; color: #999;">
                         <i class="fas fa-spinner fa-spin" style="font-size: 24px;"></i>
@@ -434,15 +512,15 @@ requireLogin();
     <!-- Delete Confirmation Modal -->
     <div id="deleteConfirmModal" class="modal">
         <div class="modal-content" style="max-width: 500px;">
-            <div class="modal-header" style="background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%); border-bottom: 2px solid #ef5350;">
+            <div class="modal-header">
                 <h2 style="color: #c62828;"><i class="fas fa-exclamation-triangle"></i> Delete Group</h2>
                 <span class="close">&times;</span>
             </div>
-            <div style="padding: 30px; text-align: center;">
-                <div style="font-size: 64px; color: #ef5350; margin-bottom: 20px;">
+            <div style="padding: 20px; text-align: center;">
+                <div style="font-size: 64px; color: #ef5350; margin-bottom: 10px;">
                     <i class="fas fa-trash-alt"></i>
                 </div>
-                <h3 style="color: #333; margin-bottom: 15px; font-size: 20px;">Are you sure?</h3>
+                <h3 style="color: #333; margin-bottom: 10px; font-size: 20px;">Are you sure?</h3>
                 <p style="color: #666; margin-bottom: 10px; line-height: 1.6;">
                     You are about to delete the group <strong id="deleteGroupName" style="color: #333;"></strong>
                 </p>
@@ -465,16 +543,16 @@ requireLogin();
     <!-- Logout Confirmation Modal -->
     <div id="logoutModal" class="modal">
         <div class="modal-content" style="max-width: 450px;">
-            <div class="modal-header" style="background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%); border-bottom: 2px solid #ef5350;">
+            <div class="modal-header">
                 <h2 style="color: #c62828;"><i class="fas fa-sign-out-alt"></i> Confirm Logout</h2>
                 <span class="close" id="closeLogoutModal">&times;</span>
             </div>
-            <div style="padding: 30px; text-align: center;">
-                <div style="font-size: 64px; color: #667eea; margin-bottom: 20px;">
+            <div style="padding: 20px; text-align: center;">
+                <div style="font-size: 64px; color: #667eea; margin-bottom: 15px;">
                     <i class="fas fa-sign-out-alt"></i>
                 </div>
                 <h3 style="color: #333; margin-bottom: 15px; font-size: 20px;">Are you sure you want to logout?</h3>
-                <p style="color: #666; margin-bottom: 20px; line-height: 1.6;">
+                <p style="color: #666; margin-bottom: 10px; line-height: 1.6;">
                     You will be redirected to the login page.
                 </p>
             </div>
