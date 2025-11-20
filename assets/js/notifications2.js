@@ -56,7 +56,25 @@ class NotificationManager {
     // Subscribe to push notifications
     async subscribeToPush() {
         try {
-            const registration = await navigator.serviceWorker.ready;
+            // Ensure service worker is registered
+            if (!('serviceWorker' in navigator)) {
+                throw new Error('Service Worker is not supported in this browser');
+            }
+
+            // Wait for service worker to be ready
+            let registration;
+            try {
+                registration = await navigator.serviceWorker.ready;
+            } catch (error) {
+                // If service worker isn't ready, try to register it
+                console.log('Service Worker not ready, attempting to register...');
+                registration = await navigator.serviceWorker.register('sw.js');
+                registration = await navigator.serviceWorker.ready;
+            }
+            
+            if (!registration) {
+                throw new Error('Service Worker registration failed');
+            }
             
             // Check if already subscribed
             let subscription = await registration.pushManager.getSubscription();
@@ -78,6 +96,7 @@ class NotificationManager {
             return subscription;
         } catch (error) {
             console.error('Failed to subscribe to push notifications:', error);
+            this.showToast(`Failed to enable notifications: ${error.message}`, 'error');
             throw error;
         }
     }
@@ -86,27 +105,36 @@ class NotificationManager {
     async sendSubscriptionToServer(subscription) {
         const subscriptionJson = subscription.toJSON();
         
-        const response = await fetch('api/notifications.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                endpoint: subscription.endpoint,
-                keys: {
-                    p256dh: subscriptionJson.keys.p256dh,
-                    auth: subscriptionJson.keys.auth
-                }
-            })
-        });
+        try {
+            const response = await fetch('api/notifications.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    endpoint: subscription.endpoint,
+                    keys: {
+                        p256dh: subscriptionJson.keys.p256dh,
+                        auth: subscriptionJson.keys.auth
+                    }
+                })
+            });
 
-        const data = await response.json();
-        
-        if (!data.success) {
-            throw new Error(data.message || 'Failed to save subscription');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            
+            if (!data.success) {
+                throw new Error(data.message || 'Failed to save subscription');
+            }
+            
+            return data;
+        } catch (error) {
+            console.error('Error sending subscription to server:', error);
+            throw error;
         }
-        
-        return data;
     }
 
     // Unsubscribe from push notifications
@@ -144,6 +172,19 @@ class NotificationManager {
     // Check subscription status
     async checkSubscription() {
         try {
+            // First check browser-level subscription
+            let browserSubscribed = false;
+            if ('serviceWorker' in navigator) {
+                try {
+                    const registration = await navigator.serviceWorker.ready;
+                    const subscription = await registration.pushManager.getSubscription();
+                    browserSubscribed = subscription !== null;
+                } catch (error) {
+                    console.warn('Could not check browser subscription:', error);
+                }
+            }
+
+            // Then check server-side subscription
             const response = await fetch('api/notifications.php', {
                 method: 'GET',
                 headers: {
@@ -151,11 +192,21 @@ class NotificationManager {
                 }
             });
             
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
             const data = await response.json();
-            return data;
+            
+            // Return true only if both browser and server have subscription
+            return {
+                success: data.success !== false,
+                subscribed: data.subscribed && browserSubscribed,
+                count: data.count || 0
+            };
         } catch (error) {
             console.error('Failed to check subscription:', error);
-            return { success: false, subscribed: false };
+            return { success: false, subscribed: false, count: 0 };
         }
     }
 
@@ -175,29 +226,54 @@ class NotificationManager {
         if (!this.isSupported) {
             if (notificationBtn) {
                 notificationBtn.disabled = true;
-                notificationBtn.title = 'Notifications not supported';
+                notificationBtn.title = 'Notifications not supported in this browser';
+                notificationBtn.style.opacity = '0.5';
             }
+            console.warn('Push notifications are not supported in this browser');
             return;
         }
 
-        // Check current subscription status
-        const status = await this.checkSubscription();
-        
-        if (notificationToggle) {
-            notificationToggle.checked = status.subscribed;
-        }
+        console.log('Initializing notification UI...');
 
-        this.updateNotificationBadge(status.subscribed);
+        // Check current subscription status
+        try {
+            const status = await this.checkSubscription();
+            console.log('Current subscription status:', status);
+            
+            if (notificationToggle) {
+                notificationToggle.checked = status.subscribed;
+            }
+
+            this.updateNotificationBadge(status.subscribed);
+        } catch (error) {
+            console.error('Error checking subscription status:', error);
+        }
 
         // Add event listeners
         if (notificationBtn) {
-            notificationBtn.addEventListener('click', async () => {
-                await this.toggleNotifications();
+            // Remove existing click listeners by cloning (to avoid duplicates)
+            const btnClone = notificationBtn.cloneNode(true);
+            notificationBtn.parentNode.replaceChild(btnClone, notificationBtn);
+            const newNotificationBtn = document.getElementById('notificationBtn');
+            
+            newNotificationBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Notification button clicked');
+                try {
+                    await this.toggleNotifications();
+                } catch (error) {
+                    console.error('Error toggling notifications:', error);
+                }
             });
+            console.log('Notification button event listener added');
+        } else {
+            console.warn('Notification button not found in DOM');
         }
 
         if (notificationToggle) {
             notificationToggle.addEventListener('change', async (e) => {
+                console.log('Notification toggle changed:', e.target.checked);
                 await this.toggleNotifications();
             });
         }
@@ -322,12 +398,37 @@ document.head.appendChild(style);
 // Initialize notification manager
 const notificationManager = new NotificationManager();
 
+// Wait for service worker to be ready before initializing UI
+function initializeNotifications() {
+    // Check if service worker is already ready
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        console.log('Service Worker already active, initializing notifications');
+        notificationManager.initializeUI();
+    } else {
+        // Wait for service worker ready event
+        const initOnReady = (event) => {
+            console.log('Service Worker ready event received, initializing notifications');
+            notificationManager.initializeUI();
+            window.removeEventListener('serviceWorkerReady', initOnReady);
+        };
+        
+        window.addEventListener('serviceWorkerReady', initOnReady);
+        
+        // Fallback: if service worker ready event doesn't fire, wait a bit and initialize anyway
+        setTimeout(() => {
+            if (document.getElementById('notificationBtn')) {
+                console.log('Fallback: Initializing notifications after timeout');
+                notificationManager.initializeUI();
+                window.removeEventListener('serviceWorkerReady', initOnReady);
+            }
+        }, 2000);
+    }
+}
+
 // Auto-initialize when DOM is ready
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        notificationManager.initializeUI();
-    });
+    document.addEventListener('DOMContentLoaded', initializeNotifications);
 } else {
-    notificationManager.initializeUI();
+    initializeNotifications();
 }
 

@@ -244,8 +244,8 @@ requireLogin();
     
     <script src="assets/js/app2.js"></script>
     <script src="assets/js/calendar.js"></script>
-    <script src="assets/js/notification1.js"></script>
-    <script src="assets/js/auto-notifications1.js"></script>
+    <script src="assets/js/notifications2.js"></script>
+    <script src="assets/js/auto-notifications2.js"></script>
     <style>
         .request-count-badge {
             color: white!important;
@@ -294,11 +294,28 @@ requireLogin();
             loadRequestCount();
         });
         
-        // Register service worker for PWA
+        // Register service worker for PWA and notifications
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js')
-                .then(reg => console.log('Service Worker registered'))
-                .catch(err => console.log('Service Worker registration failed'));
+                .then(reg => {
+                    console.log('Service Worker registered successfully', reg);
+                    // Wait for service worker to be ready before initializing notifications
+                    return navigator.serviceWorker.ready;
+                })
+                .then(registration => {
+                    console.log('Service Worker ready', registration);
+                    // Dispatch event to notify that service worker is ready
+                    window.dispatchEvent(new CustomEvent('serviceWorkerReady', { detail: registration }));
+                })
+                .catch(err => {
+                    console.error('Service Worker registration failed:', err);
+                    // Still dispatch event so notification manager can handle gracefully
+                    window.dispatchEvent(new CustomEvent('serviceWorkerReady', { detail: null }));
+                });
+        } else {
+            console.warn('Service Worker not supported');
+            // Dispatch event anyway so notification manager can handle gracefully
+            window.dispatchEvent(new CustomEvent('serviceWorkerReady', { detail: null }));
         }
     </script>
 </body>
