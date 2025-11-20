@@ -72,7 +72,7 @@ requireLogin();
                 
                 <div class="action-buttons">
                     <button id="deleteSelectedBtn" class="btn btn-danger">
-                        <i class="fas fa-trash-alt"></i> Delete Selected <span id="selectedCount" class="badge">0</span>
+                        <i class="fas fa-trash-alt"></i> Delete <span id="selectedCount" class="badge">0</span>
                     </button>
                     <button id="addOrderBtn" class="btn btn-success">
                         <i class="fas fa-plus"></i> Add Order
@@ -93,7 +93,7 @@ requireLogin();
                             <th>Date</th>
                             <th>Time</th>
                             <th>Group</th>
-                            <th style="text-align: right;">Action</th>
+                            <th style="text-align: center;">Action</th>
                         </tr>
                     </thead>
                         <tbody id="ordersTableBody">
@@ -187,15 +187,15 @@ requireLogin();
     <!-- Delete Order Confirmation Modal -->
     <div id="deleteOrderModal" class="modal">
         <div class="modal-content" style="max-width: 450px;">
-            <div class="modal-header" style="background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%); border-bottom: 2px solid #ef5350;">
+            <div class="modal-header">
                 <h2 style="color: #c62828;"><i class="fas fa-trash-alt"></i> Delete Order</h2>
                 <span class="close" id="closeDeleteOrderModal">&times;</span>
             </div>
-            <div style="padding: 30px; text-align: center;">
-                <div style="font-size: 64px; color: #ef5350; margin-bottom: 20px;">
+            <div style="padding: 20px; text-align: center;">
+                <div style="font-size: 64px; color: #ef5350; margin-bottom: 10px;">
                     <i class="fas fa-trash-alt"></i>
                 </div>
-                <h3 style="color: #333; margin-bottom: 15px; font-size: 20px;">Are you sure?</h3>
+                <h3 style="color: #333; margin-bottom: 10px; font-size: 20px;">Are you sure?</h3>
                 <p id="deleteOrderMessage" style="color: #666; margin-bottom: 10px; line-height: 1.6;">
                     You are about to delete this order.
                 </p>
@@ -218,16 +218,16 @@ requireLogin();
     <!-- Logout Confirmation Modal -->
     <div id="logoutModal" class="modal">
         <div class="modal-content" style="max-width: 450px;">
-            <div class="modal-header" style="background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%); border-bottom: 2px solid #ef5350;">
+            <div class="modal-header">
                 <h2 style="color: #c62828;"><i class="fas fa-sign-out-alt"></i> Confirm Logout</h2>
                 <span class="close" id="closeLogoutModal">&times;</span>
             </div>
-            <div style="padding: 30px; text-align: center;">
-                <div style="font-size: 64px; color: #667eea; margin-bottom: 20px;">
+            <div style="padding: 20px; text-align: center;">
+                <div style="font-size: 64px; color: #667eea; margin-bottom: 15px;">
                     <i class="fas fa-sign-out-alt"></i>
                 </div>
                 <h3 style="color: #333; margin-bottom: 15px; font-size: 20px;">Are you sure you want to logout?</h3>
-                <p style="color: #666; margin-bottom: 20px; line-height: 1.6;">
+                <p style="color: #666; margin-bottom: 10px; line-height: 1.6;">
                     You will be redirected to the login page.
                 </p>
             </div>

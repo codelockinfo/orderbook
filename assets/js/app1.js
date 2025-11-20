@@ -112,13 +112,20 @@ async function loadOrders() {
 // Render Orders
 function renderOrders() {
     ordersTableBody.innerHTML = '';
+    const tableWrapper = document.querySelector('.table-wrapper');
     
     if (orders.length === 0) {
         noOrdersDiv.style.display = 'block';
+        if (tableWrapper) {
+            tableWrapper.classList.add('no-records');
+        }
         return;
     }
     
     noOrdersDiv.style.display = 'none';
+    if (tableWrapper) {
+        tableWrapper.classList.remove('no-records');
+    }
     
     orders.forEach((order, index) => {
         const row = document.createElement('tr');
@@ -129,8 +136,8 @@ function renderOrders() {
             <td>${order.order_date}</td>
             <td>${order.order_time}</td>
             <td>${order.group_name || '<span style="color: #999;">No Group</span>'}</td>
-            <td style="text-align: right;">
-                <div class="action-cell" style="justify-content: flex-end;">
+            <td style="text-align: center;">
+                <div class="action-cell" style="justify-content: center;">
                     <button class="btn btn-danger btn-sm" onclick="deleteOrder(${order.id})"><i class="fas fa-trash-alt"></i></button>
                     <button class="btn btn-secondary btn-sm" onclick="editOrder(${order.id})"><i class="fas fa-edit"></i></button>
                     <button class="btn btn-secondary btn-sm" onclick="viewOrder(${order.id})"><i class="fas fa-eye"></i></button>
@@ -243,10 +250,14 @@ confirmDeleteOrderBtn?.addEventListener('click', async function() {
         
         if (data.success) {
             closeDeleteOrderModalFunc();
-            if (ids.length > 1) {
-                selectedOrders.clear();
-                updateSelectedCount();
-            }
+            // Clear all selected orders and reset checkboxes
+            selectedOrders.clear();
+            updateSelectedCount();
+            updateSelectAllCheckbox();
+            // Uncheck all individual checkboxes
+            document.querySelectorAll('.order-checkbox').forEach(checkbox => {
+                checkbox.checked = false;
+            });
             loadOrders();
             showNotificationToast(ids.length > 1 ? `${ids.length} orders deleted successfully` : 'Order deleted successfully', 'success');
         } else {
@@ -569,7 +580,7 @@ function showNotificationToast(message, type = 'info') {
     if (!toastContainer) {
         toastContainer = document.createElement('div');
         toastContainer.id = 'toastContainer';
-        toastContainer.style1.cssText = 'position: fixed; top: 80px; right: 20px; z-index: 10000;';
+        toastContainer.style.cssText = 'position: fixed; top: 80px; right: 20px; z-index: 10000;';
         document.body.appendChild(toastContainer);
     }
 
@@ -583,7 +594,7 @@ function showNotificationToast(message, type = 'info') {
         warning: '#ff9800'
     };
     
-    toast.style1.cssText = `
+    toast.style.cssText = `
         background: ${colors[type] || colors.info};
         color: white;
         padding: 16px 24px;
