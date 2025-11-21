@@ -2,7 +2,7 @@
 class NotificationManager {
     constructor() {
         this.isSupported = 'Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window;
-        this.publicVapidKey = 'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SdzE_VO4vWD-rJfKEKqF-pK6Q2c5wEDHEqPkEqQN3rW-qvG9D0Kh2Qc'; // You'll need to generate this
+        this.publicVapidKey = 'BLQ7g9sVZMubeodFPZowNKKeZT6KcZVOc3YSB8zNjAq6ilV4aM1ljRb3zD9jd4I593IVkWfF1BeeooZAB90-xPk'; // You'll need to generate this
     }
 
     // Check if notifications are supported

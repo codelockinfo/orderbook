@@ -190,7 +190,10 @@ class ThreeTimesNotificationSender {
                     error_log("✓ Push notification sent successfully to: " . substr($endpoint, 0, 50) . "...");
                     return true;
                 } else {
-                    error_log("✗ Failed to send push notification: " . $result->getReason());
+                    $reason = $result->getReason();
+                    $statusCode = method_exists($result, 'getStatusCode') ? $result->getStatusCode() : 'unknown';
+                    $errorMsg = "Failed to send push notification (Status: {$statusCode}): {$reason}";
+                    error_log("✗ " . $errorMsg);
                     
                     // If subscription is invalid (410), we should remove it
                     if ($result->isSubscriptionExpired()) {
@@ -198,18 +201,21 @@ class ThreeTimesNotificationSender {
                         $this->removeSubscription($subscription['id'] ?? null, $endpoint);
                     }
                     
-                    return false;
+                    // Return error message for better debugging
+                    return $errorMsg;
                 }
             } catch (Exception $e) {
-                error_log("Error sending push notification: " . $e->getMessage());
-                return false;
+                $errorMsg = "Exception: " . $e->getMessage();
+                error_log("Error sending push notification: " . $errorMsg);
+                return $errorMsg;
             }
         } else {
             // Fallback: log but don't actually send
-            error_log("⚠ Web Push library not available. Notification would be sent to: " . substr($endpoint, 0, 50) . "...");
+            $errorMsg = "Web Push library not available. Install with: composer require minishlink/web-push";
+            error_log("⚠ " . $errorMsg);
+            error_log("Notification would be sent to: " . substr($endpoint, 0, 50) . "...");
             error_log("Payload: " . $payloadJson);
-            error_log("Install web-push library: composer require minishlink/web-push");
-            return false;
+            return $errorMsg;
         }
     }
     
@@ -362,10 +368,19 @@ class ThreeTimesNotificationSender {
             ];
             
             $sentCount = 0;
+            $failedCount = 0;
+            $errorMessages = [];
+            
             foreach ($subscriptions as $subscription) {
                 $result = $this->sendPushNotification($subscription, $payload);
-                if ($result) {
+                if ($result === true) {
                     $sentCount++;
+                } else {
+                    $failedCount++;
+                    // Collect error messages if available
+                    if (is_string($result)) {
+                        $errorMessages[] = $result;
+                    }
                 }
             }
             
@@ -375,8 +390,13 @@ class ThreeTimesNotificationSender {
                 $this->logNotification($userId, $orderId, $payload['body'], $period, 'sent');
                 $totalSent++;
             } else {
-                echo "  ✗ Failed to send\n";
-                $this->logNotification($userId, $orderId, $payload['body'], $period, 'failed');
+                echo "  ✗ Failed to send to all devices ({$failedCount} device(s))\n";
+                if (!empty($errorMessages)) {
+                    foreach ($errorMessages as $error) {
+                        echo "    Error: {$error}\n";
+                    }
+                }
+                $this->logNotification($userId, $orderId, $payload['body'] . (empty($errorMessages) ? '' : ' - ' . implode(', ', $errorMessages)), $period, 'failed');
             }
         }
         

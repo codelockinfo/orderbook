@@ -38,12 +38,12 @@ if ($isLocal) {
 // Generate keys using: php cron/generate-vapid-keys.php
 if (!defined('VAPID_PUBLIC_KEY')) {
     // Default key - REPLACE with your generated public key
-    define('VAPID_PUBLIC_KEY', 'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SdzE_VO4vWD-rJfKEKqF-pK6Q2c5wEDHEqPkEqQN3rW-qvG9D0Kh2Qc');
+    define('VAPID_PUBLIC_KEY', 'BLQ7g9sVZMubeodFPZowNKKeZT6KcZVOc3YSB8zNjAq6ilV4aM1ljRb3zD9jd4I593IVkWfF1BeeooZAB90-xPk');
 }
 if (!defined('VAPID_PRIVATE_KEY')) {
     // Default key - REPLACE with your generated private key
     // This should be kept secret and not committed to version control
-    define('VAPID_PRIVATE_KEY', getenv('VAPID_PRIVATE_KEY') ?: '');
+       define('VAPID_PRIVATE_KEY', 'fLMDUGEeTvzau6oFwa2J4g0PyyARFICdqSqh3t5pTdo');
 }
 if (!defined('VAPID_SUBJECT')) {
     // Email or URL identifying your application

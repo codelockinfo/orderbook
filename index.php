@@ -244,8 +244,8 @@ requireLogin();
     
     <script src="assets/js/app4.js"></script>
     <script src="assets/js/calendar.js"></script>
-    <script src="assets/js/notifications3.js"></script>
-    <script src="assets/js/auto-notifications3.js"></script>
+    <script src="assets/js/notifications4.js"></script>
+    <script src="assets/js/auto-notifications4.js"></script>
     <style>
         .request-count-badge {
             color: white!important;
