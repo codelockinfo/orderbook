@@ -20,9 +20,9 @@ header('Content-Type: application/manifest+json');
 
 // Generate manifest
 $manifest = [
-    'name' => 'Order Book',
-    'short_name' => 'OrderBook',
-    'description' => 'Order management system for tracking and managing orders',
+    'name' => 'Evently',
+    'short_name' => 'Evently',
+    'description' => 'Event and order management system',
     'start_url' => $basePath . '/index.php',
     'scope' => $basePath . '/',
     'display' => 'standalone',
@@ -30,50 +30,15 @@ $manifest = [
     'theme_color' => '#4CAF50',
     'orientation' => 'portrait',
     'icons' => [
+        // Primary icon - your logo (iOS will use this)
         [
-            'src' => $basePath . '/assets/images/icon-72.png',
-            'sizes' => '72x72',
-            'type' => 'image/png',
-            'purpose' => 'any'
-        ],
-        [
-            'src' => $basePath . '/assets/images/icon-96.png',
-            'sizes' => '96x96',
-            'type' => 'image/png',
-            'purpose' => 'any'
-        ],
-        [
-            'src' => $basePath . '/assets/images/icon-128.png',
-            'sizes' => '128x128',
-            'type' => 'image/png',
-            'purpose' => 'any'
-        ],
-        [
-            'src' => $basePath . '/assets/images/icon-144.png',
-            'sizes' => '144x144',
-            'type' => 'image/png',
-            'purpose' => 'any'
-        ],
-        [
-            'src' => $basePath . '/assets/images/icon-152.png',
-            'sizes' => '152x152',
-            'type' => 'image/png',
-            'purpose' => 'any'
-        ],
-        [
-            'src' => $basePath . '/assets/images/icon-192.png',
+            'src' => $basePath . '/assets/images/bookify logo (5).png',
             'sizes' => '192x192',
             'type' => 'image/png',
             'purpose' => 'any maskable'
         ],
         [
-            'src' => $basePath . '/assets/images/icon-384.png',
-            'sizes' => '384x384',
-            'type' => 'image/png',
-            'purpose' => 'any'
-        ],
-        [
-            'src' => $basePath . '/assets/images/icon-512.png',
+            'src' => $basePath . '/assets/images/bookify logo (5).png',
             'sizes' => '512x512',
             'type' => 'image/png',
             'purpose' => 'any maskable'
