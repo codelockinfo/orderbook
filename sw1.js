@@ -1,16 +1,27 @@
 // Service Worker for PWA
 
 const CACHE_NAME = 'orderbook-v2-notifications';
+
+// Get base path dynamically
+const getBasePath = () => {
+  // Get the path from the service worker's location
+  const swPath = self.location.pathname;
+  // Remove 'sw1.js' from the path to get base directory
+  return swPath.substring(0, swPath.lastIndexOf('/') + 1);
+};
+
+const BASE_PATH = getBasePath();
+
 const urlsToCache = [
-  '/orderbook/',
-  '/orderbook/index.php',
-  '/orderbook/login.php',
-  '/orderbook/register.php',
-  '/orderbook/assets/css/style2.css',
-  '/orderbook/assets/js/app2.js',
-  '/orderbook/assets/js/auth1.js',
-  '/orderbook/assets/js/calendar.js',
-  '/orderbook/manifest.json'
+  BASE_PATH,
+  BASE_PATH + 'index.php',
+  BASE_PATH + 'login.php',
+  BASE_PATH + 'register.php',
+  BASE_PATH + 'assets/css/style2.css',
+  BASE_PATH + 'assets/js/app2.js',
+  BASE_PATH + 'assets/js/auth1.js',
+  BASE_PATH + 'assets/js/calendar.js',
+  BASE_PATH + 'manifest.json'
 ];
 
 // Install Service Worker
@@ -133,14 +144,15 @@ self.addEventListener('notificationclick', (event) => {
   }
   
   // Default action or 'view' action
-  const urlToOpen = notificationData.url || '/orderbook/index.php';
+  const basePath = getBasePath();
+  const urlToOpen = notificationData.url || basePath + 'index.php';
   
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true })
       .then((clientList) => {
-        // Check if app is already open
+        // Check if app is already open (check for base path in URL)
         for (let client of clientList) {
-          if (client.url.includes('/orderbook/') && 'focus' in client) {
+          if (client.url.includes(basePath) && 'focus' in client) {
             return client.focus();
           }
         }

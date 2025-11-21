@@ -1,0 +1,41 @@
+# Composer
+/vendor/
+composer.lock
+
+# Environment and config files with sensitive data
+# Note: config/config.php is tracked but VAPID keys should be set on server
+# .env files if you use them
+.env
+.env.local
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Cache
+cache/
+*.cache
+
+# Node modules (if you add any)
+node_modules/
+
+# Backup files
+*.bak
+*.backup
+

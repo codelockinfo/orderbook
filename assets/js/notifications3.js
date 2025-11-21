@@ -21,6 +21,15 @@ class NotificationManager {
         if (!this.isSupported) {
             throw new Error('Push notifications are not supported in this browser');
         }
+        
+        // Check if HTTPS is required (except localhost)
+        const isSecure = window.location.protocol === 'https:' || 
+                        window.location.hostname === 'localhost' || 
+                        window.location.hostname === '127.0.0.1';
+        
+        if (!isSecure) {
+            throw new Error('Push notifications require HTTPS. Please access the site via HTTPS.');
+        }
 
         const permission = await Notification.requestPermission();
         
@@ -68,7 +77,7 @@ class NotificationManager {
             } catch (error) {
                 // If service worker isn't ready, try to register it
                 console.log('Service Worker not ready, attempting to register...');
-                registration = await navigator.serviceWorker.register('sw.js');
+                registration = await navigator.serviceWorker.register('sw1.js');
                 registration = await navigator.serviceWorker.ready;
             }
             
@@ -106,7 +115,10 @@ class NotificationManager {
         const subscriptionJson = subscription.toJSON();
         
         try {
-            const response = await fetch('api/notifications.php', {
+            // Use relative path that works on both local and production
+            const apiUrl = 'api/notifications.php';
+            
+            const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

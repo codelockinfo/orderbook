@@ -244,8 +244,8 @@ requireLogin();
     
     <script src="assets/js/app2.js"></script>
     <script src="assets/js/calendar.js"></script>
-    <script src="assets/js/notifications2.js"></script>
-    <script src="assets/js/auto-notifications2.js"></script>
+    <script src="assets/js/notifications3.js"></script>
+    <script src="assets/js/auto-notifications3.js"></script>
     <style>
         .request-count-badge {
             color: white!important;
@@ -296,7 +296,7 @@ requireLogin();
         
         // Register service worker for PWA and notifications
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js')
+            navigator.serviceWorker.register('sw1.js')
                 .then(reg => {
                     console.log('Service Worker registered successfully', reg);
                     // Wait for service worker to be ready before initializing notifications

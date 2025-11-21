@@ -12,6 +12,7 @@ header('Content-Type: application/json');
 $allowed_origin = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]";
 header("Access-Control-Allow-Origin: $allowed_origin");
 
+require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/database.php';
 
 try {

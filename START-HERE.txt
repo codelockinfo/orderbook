@@ -76,7 +76,7 @@
   ├── 📄 register.php      Register Page
   ├── 📄 database.sql      Database Schema
   ├── 📄 manifest.json     PWA Config
-  └── 📄 sw.js            Service Worker
+  └── 📄 sw1.js            Service Worker
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

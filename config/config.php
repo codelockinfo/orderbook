@@ -34,6 +34,22 @@ if ($isLocal) {
     ini_set('display_errors', 0);
 }
 
+// VAPID Keys for Web Push Notifications
+// Generate keys using: php cron/generate-vapid-keys.php
+if (!defined('VAPID_PUBLIC_KEY')) {
+    // Default key - REPLACE with your generated public key
+    define('VAPID_PUBLIC_KEY', 'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SdzE_VO4vWD-rJfKEKqF-pK6Q2c5wEDHEqPkEqQN3rW-qvG9D0Kh2Qc');
+}
+if (!defined('VAPID_PRIVATE_KEY')) {
+    // Default key - REPLACE with your generated private key
+    // This should be kept secret and not committed to version control
+    define('VAPID_PRIVATE_KEY', getenv('VAPID_PRIVATE_KEY') ?: '');
+}
+if (!defined('VAPID_SUBJECT')) {
+    // Email or URL identifying your application
+    define('VAPID_SUBJECT', BASE_URL);
+}
+
 // Optional mail configuration (define SMTP_* constants here)
 $mailConfigFile = __DIR__ . '/mail.php';
 if (file_exists($mailConfigFile)) {

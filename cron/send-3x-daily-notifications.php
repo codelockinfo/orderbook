@@ -25,9 +25,17 @@ if (php_sapi_name() === 'cli') {
 }
 
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/config.php';
+
+// Load web-push library if available
+$autoloadPath = __DIR__ . '/../vendor/autoload.php';
+if (file_exists($autoloadPath)) {
+    require_once $autoloadPath;
+}
 
 class ThreeTimesNotificationSender {
     private $db;
+    private $webPush;
     
     // Notification time windows (24-hour format)
     const MORNING_START = 8;    // 8:00 AM
@@ -41,6 +49,28 @@ class ThreeTimesNotificationSender {
     
     public function __construct($db) {
         $this->db = $db;
+        
+        // Initialize web-push if library is available
+        if (class_exists('Minishlink\WebPush\WebPush')) {
+            try {
+                $auth = [
+                    'VAPID' => [
+                        'subject' => VAPID_SUBJECT,
+                        'publicKey' => VAPID_PUBLIC_KEY,
+                        'privateKey' => VAPID_PRIVATE_KEY,
+                    ],
+                ];
+                
+                $this->webPush = new \Minishlink\WebPush\WebPush($auth);
+                error_log('Web Push library initialized successfully');
+            } catch (Exception $e) {
+                error_log('Failed to initialize Web Push: ' . $e->getMessage());
+                $this->webPush = null;
+            }
+        } else {
+            error_log('Web Push library not found. Install with: composer require minishlink/web-push');
+            $this->webPush = null;
+        }
     }
     
     /**
@@ -124,24 +154,74 @@ class ThreeTimesNotificationSender {
      */
     public function sendPushNotification($subscription, $payload) {
         $endpoint = $subscription['endpoint'];
+        $p256dh = $subscription['p256dh_key'] ?? null;
+        $auth = $subscription['auth_key'] ?? null;
         
-        $payloadJson = json_encode($payload);
-        
-        if (!function_exists('curl_init')) {
-            error_log('cURL is not available. Cannot send push notification.');
+        if (!$p256dh || !$auth) {
+            error_log('Missing subscription keys (p256dh or auth)');
             return false;
         }
         
-        try {
-            error_log("Sending notification to: " . substr($endpoint, 0, 50) . "...");
+        $payloadJson = json_encode($payload);
+        
+        // Use web-push library if available
+        if ($this->webPush !== null) {
+            try {
+                $pushSubscription = \Minishlink\WebPush\Subscription::create([
+                    'endpoint' => $endpoint,
+                    'keys' => [
+                        'p256dh' => $p256dh,
+                        'auth' => $auth
+                    ]
+                ]);
+                
+                $result = $this->webPush->sendOneNotification(
+                    $pushSubscription,
+                    $payloadJson
+                );
+                
+                // Check result
+                if ($result->isSuccess()) {
+                    error_log("✓ Push notification sent successfully to: " . substr($endpoint, 0, 50) . "...");
+                    return true;
+                } else {
+                    error_log("✗ Failed to send push notification: " . $result->getReason());
+                    
+                    // If subscription is invalid (410), we should remove it
+                    if ($result->isSubscriptionExpired()) {
+                        error_log("Subscription expired, removing from database");
+                        $this->removeSubscription($subscription['id'] ?? null, $endpoint);
+                    }
+                    
+                    return false;
+                }
+            } catch (Exception $e) {
+                error_log("Error sending push notification: " . $e->getMessage());
+                return false;
+            }
+        } else {
+            // Fallback: log but don't actually send
+            error_log("⚠ Web Push library not available. Notification would be sent to: " . substr($endpoint, 0, 50) . "...");
             error_log("Payload: " . $payloadJson);
-            
-            // In production, use web-push-php library here
-            return true;
-            
-        } catch (Exception $e) {
-            error_log("Error sending push notification: " . $e->getMessage());
+            error_log("Install web-push library: composer require minishlink/web-push");
             return false;
+        }
+    }
+    
+    /**
+     * Remove expired/invalid subscription
+     */
+    private function removeSubscription($subscriptionId, $endpoint) {
+        try {
+            if ($subscriptionId) {
+                $stmt = $this->db->prepare("DELETE FROM push_subscriptions WHERE id = ?");
+                $stmt->execute([$subscriptionId]);
+            } else if ($endpoint) {
+                $stmt = $this->db->prepare("DELETE FROM push_subscriptions WHERE endpoint = ?");
+                $stmt->execute([$endpoint]);
+            }
+        } catch (Exception $e) {
+            error_log("Error removing subscription: " . $e->getMessage());
         }
     }
     
@@ -252,13 +332,20 @@ class ThreeTimesNotificationSender {
                 3 => "Evening reminder: Your order is coming up tomorrow!"
             ];
             
+            // Get base path for notification data (relative path)
+            $basePath = parse_url(BASE_URL, PHP_URL_PATH);
+            if (!$basePath || $basePath === '/') {
+                $basePath = '';
+            }
+            $indexPath = rtrim($basePath, '/') . '/index.php';
+            
             // Prepare notification payload
             $payload = [
                 'title' => "{$periodEmoji} Order Reminder #{$period}",
                 'body' => "{$reminderText[$period]} Order #{$orderNumber} on {$orderDate} at {$orderTime}",
                 'tag' => "order-reminder-{$period}-{$orderId}",
                 'data' => [
-                    'url' => '/orderbook/index.php',
+                    'url' => $indexPath,
                     'orderId' => $orderId,
                     'orderNumber' => $orderNumber,
                     'orderDate' => $order['order_date'],

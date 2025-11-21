@@ -106,7 +106,7 @@ QUICK START GUIDE
    ├── login.php         (Login page)
    ├── register.php      (Register page)
    ├── manifest.json     (PWA manifest)
-   └── sw.js             (Service worker)
+   └── sw1.js             (Service worker)
 
 7. USAGE:
    - Click + button to add new order
