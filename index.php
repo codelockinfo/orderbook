@@ -11,7 +11,7 @@ requireLogin();
     <title>Evently</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/style2.css">
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="manifest.php">
     <link rel="icon" type="image/png" href="assets/images/icon-192.png">
 </head>
 <body>
@@ -296,7 +296,7 @@ requireLogin();
         
         // Register service worker for PWA and notifications
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw1.js')
+            navigator.serviceWorker.register('sw2.js')
                 .then(reg => {
                     console.log('Service Worker registered successfully', reg);
                     // Wait for service worker to be ready before initializing notifications

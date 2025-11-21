@@ -6,7 +6,7 @@ const CACHE_NAME = 'orderbook-v2-notifications';
 const getBasePath = () => {
   // Get the path from the service worker's location
   const swPath = self.location.pathname;
-  // Remove 'sw1.js' from the path to get base directory
+  // Remove 'sw2.js' from the path to get base directory
   return swPath.substring(0, swPath.lastIndexOf('/') + 1);
 };
 
@@ -21,7 +21,7 @@ const urlsToCache = [
   BASE_PATH + 'assets/js/app4.js',
   BASE_PATH + 'assets/js/auth1.js',
   BASE_PATH + 'assets/js/calendar.js',
-  BASE_PATH + 'manifest.json'
+  BASE_PATH + 'manifest.php'
 ];
 
 // Install Service Worker
@@ -53,21 +53,45 @@ self.addEventListener('activate', (event) => {
 
 // Fetch Event - Network First, then Cache
 self.addEventListener('fetch', (event) => {
+  // Skip non-GET requests
+  if (event.request.method !== 'GET') {
+    return;
+  }
+  
+  // Skip chrome-extension and other non-http(s) requests
+  if (!event.request.url.startsWith('http')) {
+    return;
+  }
+  
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Clone the response
-        const responseToCache = response.clone();
-        
-        caches.open(CACHE_NAME)
-          .then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
+        // Only cache successful responses
+        if (response.status === 200) {
+          // Clone the response
+          const responseToCache = response.clone();
+          
+          caches.open(CACHE_NAME)
+            .then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
+        }
         
         return response;
       })
       .catch(() => {
-        return caches.match(event.request);
+        // Return cached version if network fails
+        return caches.match(event.request).then((cachedResponse) => {
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+          // If no cache and network fails, return index.php for navigation requests
+          if (event.request.mode === 'navigate') {
+            return caches.match(BASE_PATH + 'index.php');
+          }
+          // For other requests, return a basic error response
+          return new Response('Offline', { status: 503, statusText: 'Service Unavailable' });
+        });
       })
   );
 });

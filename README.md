@@ -105,7 +105,7 @@ You can use any online icon generator or create your own branded icons.
 ### 6. Update Service Worker Path
 
 If your project is not in the `/orderbook/` directory, update the paths in:
-- `sw1.js` - Update all URLs to match your installation path
+- `sw2.js` - Update all URLs to match your installation path
 - `manifest.json` - Update the `start_url`
 
 ### 7. Set Permissions (Linux/Mac)
@@ -146,7 +146,7 @@ orderbook/
 ├── login.php             # Login page
 ├── register.php          # Registration page
 ├── manifest.json         # PWA manifest
-├── sw1.js                 # Service worker
+├── sw2.js                 # Service worker
 └── README.md             # This file
 ```
 

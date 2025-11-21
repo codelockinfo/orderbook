@@ -42,7 +42,7 @@ ASSETS - IMAGES
 PWA FILES
 ---------
 ✓ manifest.json               - PWA manifest file
-✓ sw1.js                       - Service worker for offline support
+✓ sw2.js                       - Service worker for offline support
 
 APACHE CONFIGURATION
 --------------------

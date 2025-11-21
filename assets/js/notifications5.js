@@ -164,7 +164,7 @@ class NotificationManager {
             } catch (error) {
                 // If service worker isn't ready, try to register it
                 console.log('Service Worker not ready, attempting to register...');
-                registration = await navigator.serviceWorker.register('sw1.js');
+                registration = await navigator.serviceWorker.register('sw2.js');
                 registration = await navigator.serviceWorker.ready;
             }
             
