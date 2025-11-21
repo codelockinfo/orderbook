@@ -4,8 +4,8 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Timezone
-date_default_timezone_set('UTC');
+// Timezone - Set to India Standard Time (IST)
+date_default_timezone_set('Asia/Kolkata');
 
 // Detect environment (Local vs Live)
 $server = $_SERVER['SERVER_NAME'] ?? $_SERVER['HTTP_HOST'] ?? '';
