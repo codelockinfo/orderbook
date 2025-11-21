@@ -117,7 +117,15 @@ header('Content-Type: text/html; charset=utf-8');
             }
             
             // Check recent notification logs
-            $stmt = $db->query("SELECT * FROM notification_logs ORDER BY created_at DESC LIMIT 5");
+            // Check if created_at column exists first
+            $stmt = $db->query("SHOW COLUMNS FROM notification_logs LIKE 'created_at'");
+            $hasCreatedAt = $stmt->rowCount() > 0;
+            
+            if ($hasCreatedAt) {
+                $stmt = $db->query("SELECT * FROM notification_logs ORDER BY created_at DESC LIMIT 5");
+            } else {
+                $stmt = $db->query("SELECT * FROM notification_logs ORDER BY id DESC LIMIT 5");
+            }
             $recentLogs = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             if (!empty($recentLogs)) {
