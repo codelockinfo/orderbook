@@ -9,6 +9,93 @@ class NotificationManager {
     isNotificationSupported() {
         return this.isSupported;
     }
+    
+    // Get browser compatibility info
+    getBrowserInfo() {
+        const ua = navigator.userAgent;
+        const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+        const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
+        const isIOSSafari = isIOS && isSafari;
+        const isChrome = /Chrome/.test(ua) && /Google Inc/.test(navigator.vendor);
+        const isFirefox = /Firefox/.test(ua);
+        const isEdge = /Edge/.test(ua) || /Edg/.test(ua);
+        const isAndroid = /Android/.test(ua);
+        
+        // Check iOS version (approximate)
+        let iosVersion = null;
+        if (isIOS) {
+            const match = ua.match(/OS (\d+)_(\d+)/);
+            if (match) {
+                iosVersion = parseFloat(match[1] + '.' + match[2]);
+            }
+        }
+        
+        // Check if in WebView
+        const isWebView = (isIOS && window.navigator.standalone === false) || 
+                         (isAndroid && !/Chrome/.test(ua) && /wv/.test(ua));
+        
+        return {
+            isIOS,
+            isSafari,
+            isIOSSafari,
+            isChrome,
+            isFirefox,
+            isEdge,
+            isAndroid,
+            isWebView,
+            iosVersion,
+            userAgent: ua
+        };
+    }
+    
+    // Get compatibility message
+    getCompatibilityMessage() {
+        const browser = this.getBrowserInfo();
+        
+        if (!this.isSupported) {
+            if (browser.isIOSSafari) {
+                if (browser.iosVersion && browser.iosVersion < 16.4) {
+                    return {
+                        supported: false,
+                        message: 'Web Push Notifications require iOS 16.4 or later. Please update your device.',
+                        canUpgrade: true
+                    };
+                } else if (browser.iosVersion && browser.iosVersion >= 16.4) {
+                    return {
+                        supported: true,
+                        message: 'iOS Safari 16.4+ supports notifications, but you must add this website to your Home Screen first.',
+                        requiresPWA: true
+                    };
+                }
+            }
+            
+            if (browser.isWebView) {
+                return {
+                    supported: false,
+                    message: 'Push notifications may not work in this WebView. Try opening in a regular browser (Chrome, Safari, Firefox).',
+                    isWebView: true
+                };
+            }
+            
+            return {
+                supported: false,
+                message: 'Your browser does not support Web Push Notifications. Please use Chrome, Firefox, Edge, or Safari (16.4+).'
+            };
+        }
+        
+        if (browser.isIOSSafari && browser.iosVersion >= 16.4) {
+            return {
+                supported: true,
+                message: 'iOS Safari supports notifications. Make sure you\'ve added this site to your Home Screen.',
+                requiresPWA: true
+            };
+        }
+        
+        return {
+            supported: true,
+            message: 'Your browser supports Web Push Notifications!'
+        };
+    }
 
     // Get current permission status
     getPermissionStatus() {
@@ -236,13 +323,30 @@ class NotificationManager {
         const notificationToggle = document.getElementById('notificationToggle');
         
         if (!this.isSupported) {
+            const compat = this.getCompatibilityMessage();
             if (notificationBtn) {
                 notificationBtn.disabled = true;
-                notificationBtn.title = 'Notifications not supported in this browser';
+                notificationBtn.title = compat.message;
                 notificationBtn.style.opacity = '0.5';
             }
-            console.warn('Push notifications are not supported in this browser');
+            console.warn('Push notifications are not supported:', compat.message);
+            
+            // Show helpful message for iOS users
+            if (compat.requiresPWA) {
+                this.showToast('📱 iOS Safari: Add this site to Home Screen to enable notifications', 'info');
+            }
             return;
+        }
+        
+        // Check iOS Safari specific requirements
+        const browser = this.getBrowserInfo();
+        if (browser.isIOSSafari && browser.iosVersion >= 16.4) {
+            // Check if added to home screen
+            const isStandalone = window.navigator.standalone === true || 
+                                window.matchMedia('(display-mode: standalone)').matches;
+            if (!isStandalone) {
+                console.info('iOS Safari: For best notification support, add this site to Home Screen');
+            }
         }
 
         console.log('Initializing notification UI...');

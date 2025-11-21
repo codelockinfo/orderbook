@@ -287,7 +287,7 @@ try {
         </main>
     </div>
     
-    <script src="assets/js/notifications4.js"></script>
+    <script src="assets/js/notifications5.js"></script>
     <script>
         // Check browser status
         function updateBrowserStatus() {
