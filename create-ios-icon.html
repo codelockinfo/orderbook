@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create iOS Icon with Padding</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; }
+        .upload-area {
+            border: 2px dashed #ccc;
+            padding: 40px;
+            text-align: center;
+            border-radius: 8px;
+            margin: 20px 0;
+            cursor: pointer;
+        }
+        .upload-area:hover {
+            border-color: #4CAF50;
+            background: #f9f9f9;
+        }
+        input[type="file"] { display: none; }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover { background: #45a049; }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        canvas { display: none; }
+        .preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .icon-preview {
+            text-align: center;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+        .icon-preview img {
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .warning {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍎 Create iOS Icon (No Black Border)</h1>
+        
+        <div class="info">
+            <strong>Why iOS shows black borders:</strong><br>
+            iOS applies a mask to icons. If your icon doesn't have proper padding, the edges get cut off or show a border.
+        </div>
+        
+        <div class="warning">
+            <strong>Solution:</strong><br>
+            This tool will add proper padding (safe area) to your icon so iOS doesn't add a black border.
+            <br><br>
+            <strong>Recommended:</strong> Use 80% of the canvas size for your logo, leaving 10% padding on all sides.
+        </div>
+        
+        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+            <p>📁 Click to upload your logo</p>
+            <p style="color: #666; font-size: 14px;">PNG with transparent background works best</p>
+        </div>
+        <input type="file" id="fileInput" accept="image/*">
+        
+        <div style="text-align: center; margin: 20px 0;">
+            <label>
+                Padding: <input type="range" id="paddingSlider" min="0" max="30" value="10" oninput="updatePadding()">
+                <span id="paddingValue">10%</span>
+            </label>
+            <br><br>
+            <button id="generateBtn" onclick="generateIcon()" disabled>Generate iOS Icon</button>
+            <button onclick="downloadIcon()" id="downloadBtn" disabled>Download Icon</button>
+        </div>
+        
+        <div id="preview"></div>
+        
+        <canvas id="canvas"></canvas>
+    </div>
+    
+    <script>
+        let paddingPercent = 10;
+        let iconData = null;
+        
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('generateBtn').disabled = false;
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        document.querySelector('.upload-area').innerHTML = 
+                            `<img src="${event.target.result}" style="max-width: 200px; max-height: 200px; border-radius: 8px;"><br>
+                             <p>Logo loaded: ${img.width}x${img.height}</p>`;
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        function updatePadding() {
+            paddingPercent = parseInt(document.getElementById('paddingSlider').value);
+            document.getElementById('paddingValue').textContent = paddingPercent + '%';
+        }
+        
+        function generateIcon() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please select an image first');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.getElementById('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const size = 1024; // iOS prefers 1024x1024
+                    
+                    canvas.width = size;
+                    canvas.height = size;
+                    
+                    // Clear canvas with transparent background
+                    ctx.clearRect(0, 0, size, size);
+                    
+                    // Calculate padding
+                    const padding = (size * paddingPercent) / 100;
+                    const logoSize = size - (padding * 2);
+                    
+                    // Calculate position to center
+                    const x = padding;
+                    const y = padding;
+                    
+                    // Draw logo scaled to fit with padding
+                    const scale = Math.min(logoSize / img.width, logoSize / img.height);
+                    const scaledWidth = img.width * scale;
+                    const scaledHeight = img.height * scale;
+                    const offsetX = (logoSize - scaledWidth) / 2;
+                    const offsetY = (logoSize - scaledHeight) / 2;
+                    
+                    ctx.drawImage(img, x + offsetX, y + offsetY, scaledWidth, scaledHeight);
+                    
+                    // Convert to blob
+                    canvas.toBlob(function(blob) {
+                        const url = URL.createObjectURL(blob);
+                        iconData = { blob, url };
+                        
+                        // Show preview
+                        const preview = document.getElementById('preview');
+                        preview.innerHTML = `
+                            <h2>Preview (with ${paddingPercent}% padding):</h2>
+                            <div class="preview">
+                                <div class="icon-preview">
+                                    <img src="${url}" width="180" height="180" alt="iOS Icon Preview">
+                                    <div><strong>1024x1024</strong></div>
+                                    <p style="font-size: 12px; color: #666;">This is how it will look on iOS</p>
+                                </div>
+                            </div>
+                        `;
+                        
+                        document.getElementById('downloadBtn').disabled = false;
+                    }, 'image/png');
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function downloadIcon() {
+            if (iconData) {
+                const link = document.createElement('a');
+                link.href = iconData.url;
+                link.download = 'ios-icon-1024.png';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                alert('Icon downloaded! Replace "bookify logo (5).png" with this file in assets/images/ folder.');
+            }
+        }
+    </script>
+</body>
+</html>
+

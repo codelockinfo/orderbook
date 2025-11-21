@@ -30,18 +30,30 @@ $manifest = [
     'theme_color' => '#4CAF50',
     'orientation' => 'portrait',
     'icons' => [
-        // Primary icon - your logo (iOS will use this)
+        // iOS requires specific sizes for best results
+        [
+            'src' => $basePath . '/assets/images/bookify logo (5).png',
+            'sizes' => '180x180',
+            'type' => 'image/png',
+            'purpose' => 'any'
+        ],
         [
             'src' => $basePath . '/assets/images/bookify logo (5).png',
             'sizes' => '192x192',
             'type' => 'image/png',
-            'purpose' => 'any maskable'
+            'purpose' => 'any'
         ],
         [
             'src' => $basePath . '/assets/images/bookify logo (5).png',
             'sizes' => '512x512',
             'type' => 'image/png',
-            'purpose' => 'any maskable'
+            'purpose' => 'any'
+        ],
+        [
+            'src' => $basePath . '/assets/images/bookify logo (5).png',
+            'sizes' => '1024x1024',
+            'type' => 'image/png',
+            'purpose' => 'any'
         ]
     ],
     'categories' => ['business', 'productivity']

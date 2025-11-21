@@ -16,9 +16,12 @@ requireLogin();
     <link rel="stylesheet" href="assets/css/style2.css">
     <link rel="manifest" href="manifest.php">
     <link rel="icon" type="image/png" href="assets/images/bookify logo (5).png">
-    <link rel="apple-touch-icon" href="assets/images/bookify logo (5).png">
-    <link rel="apple-touch-icon" sizes="152x152" href="assets/images/bookify logo (5).png">
+    <!-- iOS icons - prevent black border by using proper sizes -->
     <link rel="apple-touch-icon" sizes="180x180" href="assets/images/bookify logo (5).png">
+    <link rel="apple-touch-icon" sizes="152x152" href="assets/images/bookify logo (5).png">
+    <link rel="apple-touch-icon" sizes="120x120" href="assets/images/bookify logo (5).png">
+    <link rel="apple-touch-icon" sizes="76x76" href="assets/images/bookify logo (5).png">
+    <link rel="apple-touch-icon" href="assets/images/bookify logo (5).png">
     <link rel="apple-touch-icon" href="assets/images/bookify logo (5).png">
 </head>
 <body>
