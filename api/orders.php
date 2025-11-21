@@ -1,10 +1,18 @@
 <?php
+// Start output buffering to prevent any accidental output
+ob_start();
+
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../includes/NotificationService.php';
+
+// Clear any output that might have been generated
+ob_clean();
 
 header('Content-Type: application/json');
 
 if (!isLoggedIn()) {
+    ob_clean();
+    http_response_code(401);
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit;
 }
@@ -116,6 +124,8 @@ else if ($method === 'POST' && $action === 'create') {
     $groupId = !empty($data['group_id']) ? intval($data['group_id']) : null;
     
     if (empty($orderNumber) || empty($orderDate) || empty($orderTime)) {
+        ob_clean();
+        http_response_code(400);
         echo json_encode(['success' => false, 'message' => 'Order number, date and time are required']);
         exit;
     }
@@ -131,10 +141,14 @@ else if ($method === 'POST' && $action === 'create') {
             ");
             $stmt->execute([$groupId, $userId, $userId]);
             if (!$stmt->fetch()) {
+                ob_clean();
+                http_response_code(403);
                 echo json_encode(['success' => false, 'message' => 'You do not have access to this group']);
                 exit;
             }
         } catch (PDOException $e) {
+            ob_clean();
+            http_response_code(500);
             echo json_encode(['success' => false, 'message' => 'Failed to validate group: ' . $e->getMessage()]);
             exit;
         }
@@ -147,7 +161,14 @@ else if ($method === 'POST' && $action === 'create') {
         $orderId = $db->lastInsertId();
         
         // Automatically process notifications for this order
-        $notificationResult = $notificationService->processOrderNotifications($orderId, $userId);
+        // Wrap in try-catch to prevent notification errors from breaking order creation
+        $notificationResult = null;
+        try {
+            $notificationResult = $notificationService->processOrderNotifications($orderId, $userId);
+        } catch (Exception $notifError) {
+            // Log error but don't fail order creation
+            error_log("Notification processing error: " . $notifError->getMessage());
+        }
         
         $response = [
             'success' => true, 
@@ -155,23 +176,34 @@ else if ($method === 'POST' && $action === 'create') {
             'order_id' => $orderId
         ];
         
-        // Add notification info to response
-        if (isset($notificationResult['autoSent']) && $notificationResult['autoSent']) {
+        // Add notification info to response if available
+        if ($notificationResult && isset($notificationResult['autoSent']) && $notificationResult['autoSent']) {
             $response['notification'] = [
                 'sent' => true,
-                'message' => $notificationResult['message'],
+                'message' => $notificationResult['message'] ?? 'Notification sent',
                 'reminderNumber' => $notificationResult['reminderNumber'] ?? null
             ];
-        } elseif (isset($notificationResult['scheduled']) && $notificationResult['scheduled']) {
+        } elseif ($notificationResult && isset($notificationResult['scheduled']) && $notificationResult['scheduled']) {
             $response['notification'] = [
                 'scheduled' => true,
-                'message' => $notificationResult['message']
+                'message' => $notificationResult['message'] ?? 'Notification scheduled'
             ];
         }
         
+        // Clear output buffer and send JSON
+        ob_clean();
         echo json_encode($response);
+        exit;
     } catch (PDOException $e) {
+        ob_clean();
+        http_response_code(500);
         echo json_encode(['success' => false, 'message' => 'Failed to create order: ' . $e->getMessage()]);
+        exit;
+    } catch (Exception $e) {
+        ob_clean();
+        http_response_code(500);
+        echo json_encode(['success' => false, 'message' => 'An error occurred: ' . $e->getMessage()]);
+        exit;
     }
 }
 
@@ -188,6 +220,8 @@ else if ($method === 'POST' && $action === 'update') {
     $groupId = !empty($data['group_id']) ? intval($data['group_id']) : null;
     
     if ($orderId <= 0) {
+        ob_clean();
+        http_response_code(400);
         echo json_encode(['success' => false, 'message' => 'Invalid order ID']);
         exit;
     }
@@ -203,10 +237,14 @@ else if ($method === 'POST' && $action === 'update') {
             ");
             $stmt->execute([$groupId, $userId, $userId]);
             if (!$stmt->fetch()) {
+                ob_clean();
+                http_response_code(403);
                 echo json_encode(['success' => false, 'message' => 'You do not have access to this group']);
                 exit;
             }
         } catch (PDOException $e) {
+            ob_clean();
+            http_response_code(500);
             echo json_encode(['success' => false, 'message' => 'Failed to validate group: ' . $e->getMessage()]);
             exit;
         }
@@ -217,30 +255,48 @@ else if ($method === 'POST' && $action === 'update') {
         $stmt->execute([$orderNumber, $orderDate, $orderTime, $status, $groupId, $orderId, $userId]);
         
         // Automatically process notifications for the updated order
-        $notificationResult = $notificationService->processOrderNotifications($orderId, $userId);
+        // Wrap in try-catch to prevent notification errors from breaking order update
+        $notificationResult = null;
+        try {
+            $notificationResult = $notificationService->processOrderNotifications($orderId, $userId);
+        } catch (Exception $notifError) {
+            // Log error but don't fail order update
+            error_log("Notification processing error: " . $notifError->getMessage());
+        }
         
         $response = [
             'success' => true, 
             'message' => 'Order updated successfully'
         ];
         
-        // Add notification info to response
-        if (isset($notificationResult['autoSent']) && $notificationResult['autoSent']) {
+        // Add notification info to response if available
+        if ($notificationResult && isset($notificationResult['autoSent']) && $notificationResult['autoSent']) {
             $response['notification'] = [
                 'sent' => true,
-                'message' => $notificationResult['message'],
+                'message' => $notificationResult['message'] ?? 'Notification sent',
                 'reminderNumber' => $notificationResult['reminderNumber'] ?? null
             ];
-        } elseif (isset($notificationResult['scheduled']) && $notificationResult['scheduled']) {
+        } elseif ($notificationResult && isset($notificationResult['scheduled']) && $notificationResult['scheduled']) {
             $response['notification'] = [
                 'scheduled' => true,
-                'message' => $notificationResult['message']
+                'message' => $notificationResult['message'] ?? 'Notification scheduled'
             ];
         }
         
+        // Clear output buffer and send JSON
+        ob_clean();
         echo json_encode($response);
+        exit;
     } catch (PDOException $e) {
+        ob_clean();
+        http_response_code(500);
         echo json_encode(['success' => false, 'message' => 'Failed to update order: ' . $e->getMessage()]);
+        exit;
+    } catch (Exception $e) {
+        ob_clean();
+        http_response_code(500);
+        echo json_encode(['success' => false, 'message' => 'An error occurred: ' . $e->getMessage()]);
+        exit;
     }
 }
 

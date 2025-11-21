@@ -242,7 +242,7 @@ requireLogin();
         </div>
     </div>
     
-    <script src="assets/js/app2.js"></script>
+    <script src="assets/js/app3.js"></script>
     <script src="assets/js/calendar.js"></script>
     <script src="assets/js/notifications3.js"></script>
     <script src="assets/js/auto-notifications3.js"></script>

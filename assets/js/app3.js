@@ -400,7 +400,21 @@ orderForm.addEventListener('submit', async (e) => {
             body: JSON.stringify(formData)
         });
         
-        const data = await response.json();
+        // Check if response is OK
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        // Get response text first to handle potential non-JSON responses
+        const responseText = await response.text();
+        let data;
+        
+        try {
+            data = JSON.parse(responseText);
+        } catch (parseError) {
+            console.error('Failed to parse JSON response:', responseText);
+            throw new Error('Invalid response from server. Please try again.');
+        }
         
         if (data.success) {
             orderModal.classList.remove('show');
@@ -423,14 +437,16 @@ orderForm.addEventListener('submit', async (e) => {
                 }
             } else {
                 // Default success message if no notification info
-                showNotificationToast(data.message, 'success');
+                showNotificationToast(data.message || 'Order saved successfully', 'success');
             }
         } else {
-            alert(data.message);
+            alert(data.message || 'Failed to save order');
         }
     } catch (error) {
         console.error('Error saving order:', error);
-        alert('Failed to save order');
+        // Check if order was actually created by reloading orders
+        loadOrders();
+        alert(error.message || 'Failed to save order. Please check your connection and try again.');
     }
 });
 
