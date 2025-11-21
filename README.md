@@ -134,7 +134,7 @@ orderbook/
 │   ├── css/
 │   │   └── style2.css     # Main stylesheet
 │   ├── js/
-│   │   ├── app3.js        # Main application JS
+│   │   ├── app4.js        # Main application JS
 │   │   ├── auth1.js       # Authentication JS
 │   │   └── calendar.js   # Calendar functionality
 │   └── images/           # PWA icons

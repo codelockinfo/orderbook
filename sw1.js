@@ -18,7 +18,7 @@ const urlsToCache = [
   BASE_PATH + 'login.php',
   BASE_PATH + 'register.php',
   BASE_PATH + 'assets/css/style2.css',
-  BASE_PATH + 'assets/js/app3.js',
+  BASE_PATH + 'assets/js/app4.js',
   BASE_PATH + 'assets/js/auth1.js',
   BASE_PATH + 'assets/js/calendar.js',
   BASE_PATH + 'manifest.json'

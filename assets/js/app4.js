@@ -425,11 +425,30 @@ orderForm.addEventListener('submit', async (e) => {
                 if (data.notification.sent) {
                     showNotificationToast(data.notification.message, 'success');
                     
-                    // Also send browser notification if permission granted
-                    if (Notification.permission === 'granted') {
-                        new Notification('🔔 Auto Notification Sent!', {
-                            body: data.notification.message,
-                            tag: 'order-auto-notification'
+                    // Show browser notification via Service Worker (works on mobile)
+                    // Only if service worker is available and permission is granted
+                    if ('serviceWorker' in navigator && Notification.permission === 'granted') {
+                        navigator.serviceWorker.ready.then(registration => {
+                            // Get base path for icons
+                            const basePath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+                            const notificationOptions = {
+                                body: data.notification.message,
+                                tag: 'order-auto-notification'
+                            };
+                            
+                            // Add icon if available (optional, won't break if missing)
+                            const iconPath = basePath + 'assets/images/icon-192.png';
+                            notificationOptions.icon = iconPath;
+                            notificationOptions.badge = basePath + 'assets/images/icon-96.png';
+                            
+                            registration.showNotification('🔔 Auto Notification Sent!', notificationOptions)
+                                .catch(err => {
+                                    // Silently fail if notification can't be shown
+                                    console.log('Could not show notification:', err);
+                                });
+                        }).catch(err => {
+                            // Silently fail if service worker is not ready
+                            console.log('Service worker not ready:', err);
                         });
                     }
                 } else if (data.notification.scheduled) {

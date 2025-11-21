@@ -30,7 +30,7 @@ ASSETS - CSS
 
 ASSETS - JAVASCRIPT
 -------------------
-✓ assets/js/app3.js            - Main application logic
+✓ assets/js/app4.js            - Main application logic
 ✓ assets/js/auth1.js           - Authentication handling
 ✓ assets/js/calendar.js       - Calendar view functionality
 
