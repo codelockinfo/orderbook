@@ -41,20 +41,17 @@ if (empty($email)) {
             </div>
 
             <p class="instruction-text">
-                Enter the verification code sent to your email address.
+                Enter the verification code sent to <strong><?php echo htmlspecialchars($email); ?></strong>
             </p>
 
             <div id="error-message" class="error-message"></div>
             <div id="success-message" class="status-message success-message"></div>
 
             <form id="verifyCodeForm">
-                <div class="form-group">
-                    <label for="resetEmailConfirm">Email address</label>
-                    <input type="email" id="resetEmailConfirm" name="resetEmailConfirm" value="<?php echo $email; ?>" readonly>
-                </div>
+                <input type="hidden" id="resetEmailConfirm" name="resetEmailConfirm" value="<?php echo htmlspecialchars($email); ?>">
                 <div class="form-group">
                     <label for="resetCode">Verification code</label>
-                    <input type="text" id="resetCode" name="resetCode" maxlength="6" pattern="\d{6}" placeholder="123456" required autocomplete="one-time-code">
+                    <input type="text" id="resetCode" name="resetCode" maxlength="6" pattern="\d{6}" placeholder="123456" required autocomplete="one-time-code" style="font-size: 24px; letter-spacing: 8px; text-align: center; font-family: 'Courier New', monospace; font-weight: 600;">
                 </div>
                 <button type="submit" class="btn btn-primary">Verify code</button>
             </form>

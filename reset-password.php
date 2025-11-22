@@ -43,32 +43,26 @@ if (empty($email) || empty($code)) {
             </div>
 
             <p class="instruction-text">
-                Create a new password for your account.
+                Create a new password for <strong><?php echo htmlspecialchars($email); ?></strong>
             </p>
 
             <div id="error-message" class="error-message"></div>
             <div id="success-message" class="status-message success-message"></div>
 
             <form id="resetPasswordForm">
-                <div class="form-group">
-                    <label for="resetEmailFinal">Email address</label>
-                    <input type="email" id="resetEmailFinal" name="resetEmailFinal" value="<?php echo $email; ?>" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="resetCodeFinal">Verification code</label>
-                    <input type="text" id="resetCodeFinal" name="resetCodeFinal" value="<?php echo $code; ?>" readonly>
-                </div>
+                <input type="hidden" id="resetEmailFinal" name="resetEmailFinal" value="<?php echo htmlspecialchars($email); ?>">
+                <input type="hidden" id="resetCodeFinal" name="resetCodeFinal" value="<?php echo htmlspecialchars($code); ?>">
                 <div class="form-group">
                     <label for="newPassword">New password</label>
                     <div class="password-input-wrapper">
-                        <input type="password" id="newPassword" name="newPassword" required>
+                        <input type="password" id="newPassword" name="newPassword" required minlength="6">
                         <i class="fas fa-eye password-toggle" id="toggleNewPassword"></i>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="confirmNewPassword">Confirm new password</label>
                     <div class="password-input-wrapper">
-                        <input type="password" id="confirmNewPassword" name="confirmNewPassword" required>
+                        <input type="password" id="confirmNewPassword" name="confirmNewPassword" required minlength="6">
                         <i class="fas fa-eye password-toggle" id="toggleConfirmNewPassword"></i>
                     </div>
                 </div>
