@@ -31,7 +31,7 @@ ASSETS - CSS
 ASSETS - JAVASCRIPT
 -------------------
 ✓ assets/js/app4.js            - Main application logic
-✓ assets/js/auth1.js           - Authentication handling
+✓ assets/js/auth2.js           - Authentication handling
 ✓ assets/js/calendar.js       - Calendar view functionality
 
 ASSETS - IMAGES

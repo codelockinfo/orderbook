@@ -57,11 +57,11 @@ if (file_exists($mailConfigFile)) {
 }
 
 if (!defined('SMTP_HOST')) {
-    define('SMTP_HOST', getenv('SMTP_HOST') ?: '');
+    define('SMTP_HOST', getenv('SMTP_HOST') ?: 'smtp.hostinger.com');
 }
 
 if (!defined('SMTP_PORT')) {
-    define('SMTP_PORT', (int)(getenv('SMTP_PORT') ?: 587));
+    define('SMTP_PORT', (int)(getenv('SMTP_PORT') ?: 465));
 }
 
 if (!defined('SMTP_ENCRYPTION')) {
@@ -69,15 +69,15 @@ if (!defined('SMTP_ENCRYPTION')) {
 }
 
 if (!defined('SMTP_USERNAME')) {
-    define('SMTP_USERNAME', getenv('SMTP_USERNAME') ?: '');
+    define('SMTP_USERNAME', getenv('SMTP_USERNAME') ?: 'tailorpro@happyeventsurat.com');
 }
 
 if (!defined('SMTP_PASSWORD')) {
-    define('SMTP_PASSWORD', getenv('SMTP_PASSWORD') ?: '');
+    define('SMTP_PASSWORD', getenv('SMTP_PASSWORD') ?: 'Tailor@99');
 }
 
 if (!defined('SMTP_FROM_EMAIL')) {
-    define('SMTP_FROM_EMAIL', getenv('SMTP_FROM_EMAIL') ?: 'no-reply@evently.local');
+    define('SMTP_FROM_EMAIL', getenv('SMTP_FROM_EMAIL') ?: 'tailorpro@happyeventsurat.com');
 }
 
 if (!defined('SMTP_FROM_NAME')) {

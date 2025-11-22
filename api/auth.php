@@ -34,14 +34,19 @@ if (!defined('RESET_EMAIL_NAME')) {
 function sendPasswordResetEmail(string $email, string $username, string $code): bool {
     $subject = 'Your Evently password reset code';
     $expiresText = RESET_CODE_EXPIRY_MINUTES . ' minute' . (RESET_CODE_EXPIRY_MINUTES === 1 ? '' : 's');
-    $message = "Hi {$username},\n\n"
+    
+    // Create HTML email body
+    $htmlMessage = generatePasswordResetEmailHTML($username, $email, $code, $expiresText);
+    
+    // Plain text fallback
+    $textMessage = "Hi {$username},\n\n"
         . "Here is your password reset code:\n\n"
         . "{$code}\n\n"
         . "Enter this code in Evently within {$expiresText} to reset your password.\n"
         . "If you did not request this, you can safely ignore this email.\n\n"
         . "Thanks,\nEvently";
 
-    $sent = sendAppEmail($email, $subject, $message);
+    $sent = sendAppEmail($email, $subject, $htmlMessage, $textMessage);
 
     if (!$sent) {
         error_log("Password reset code for {$email}: {$code}");
@@ -51,17 +56,136 @@ function sendPasswordResetEmail(string $email, string $username, string $code): 
 }
 
 /**
- * Send an application email using SMTP when configured, otherwise fall back to PHP mail().
+ * Generate HTML email template for password reset
  */
-function sendAppEmail(string $to, string $subject, string $body): bool {
+function generatePasswordResetEmailHTML(string $username, string $email, string $code, string $expiresText): string {
+    $baseUrl = BASE_URL;
+    
+    return '
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Your Password</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, \'Helvetica Neue\', Arial, sans-serif; background-color: #4A90E2;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #4A90E2; padding: 40px 20px;">
+        <tr>
+            <td align="center">
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                    <!-- Header with illustration -->
+                    <tr>
+                        <td align="center" style="padding: 40px 40px 20px 40px;">
+                            <div style="position: relative; display: inline-block;">
+                                <!-- Envelope illustration -->
+                                <div style="width: 80px; height: 60px; background-color: #E74C3C; border-radius: 4px; position: relative; margin: 0 auto;">
+                                    <div style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 40px solid transparent; border-right: 40px solid transparent; border-bottom: 15px solid #C0392B;"></div>
+                                    <div style="position: absolute; top: 15px; left: 10px; width: 60px; height: 40px; background-color: #ffffff; border-radius: 2px;"></div>
+                                </div>
+                                <!-- Checkmark circle -->
+                                <div style="position: absolute; top: -5px; right: -10px; width: 40px; height: 40px; background-color: #27AE60; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <span style="color: #ffffff; font-size: 24px; font-weight: bold;">✓</span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Heading -->
+                    <tr>
+                        <td align="center" style="padding: 0 40px 20px 40px;">
+                            <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #2C3E50; text-align: center;">Your authentication code</h1>
+                        </td>
+                    </tr>
+                    
+                    <!-- Instructions -->
+                    <tr>
+                        <td style="padding: 0 40px 30px 40px;">
+                            <p style="margin: 0 0 15px 0; font-size: 16px; line-height: 1.6; color: #34495E; text-align: center;">
+                                You\'ve entered <strong style="color: #2C3E50;">' . htmlspecialchars($email) . '</strong> as the email address for your account.
+                            </p>
+                            <p style="margin: 0 0 30px 0; font-size: 16px; line-height: 1.6; color: #34495E; text-align: center;">
+                                Please use the authentication code below to verify your identity and reset your password.
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Reset Code Display -->
+                    <tr>
+                        <td align="center" style="padding: 0 40px 30px 40px;">
+                            <div style="background-color: #F8F9FA; border: 2px dashed #DEE2E6; border-radius: 8px; padding: 25px 30px; margin: 0 auto; display: inline-block;">
+                                <div style="font-size: 36px; font-weight: 700; letter-spacing: 10px; color: #2C3E50; font-family: \'Courier New\', monospace; text-align: center;">
+                                    ' . htmlspecialchars($code) . '
+                                </div>
+                            </div>
+                            <p style="margin: 20px 0 0 0; font-size: 16px; line-height: 1.5; color: #34495E; text-align: center; font-weight: 600;">
+                                Enter this code in Evently to verify your identity
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Expiry notice -->
+                    <tr>
+                        <td align="center" style="padding: 0 40px 20px 40px;">
+                            <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #7F8C8D; text-align: center;">
+                                This authentication code will expire in <strong>' . htmlspecialchars($expiresText) . '</strong>.
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="padding: 30px 40px 40px 40px; border-top: 1px solid #ECF0F1;">
+                            <p style="margin: 0 0 10px 0; font-size: 14px; line-height: 1.5; color: #95A5A6; text-align: center;">
+                                If you did not request this password reset, you can safely ignore this email.
+                            </p>
+                            <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #95A5A6; text-align: center;">
+                                For security reasons, please do not share this code with anyone.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>';
+}
+
+/**
+ * Send an application email using SMTP when configured, otherwise fall back to PHP mail().
+ * @param string $to Recipient email
+ * @param string $subject Email subject
+ * @param string $htmlBody HTML email body
+ * @param string|null $textBody Plain text fallback (optional)
+ */
+function sendAppEmail(string $to, string $subject, string $htmlBody, ?string $textBody = null): bool {
     $fromEmail = SMTP_FROM_EMAIL ?: RESET_EMAIL_FROM;
     $fromName = SMTP_FROM_NAME ?: RESET_EMAIL_NAME;
+
+    // If no text body provided, create a simple one from HTML
+    if ($textBody === null) {
+        $textBody = strip_tags($htmlBody);
+        $textBody = html_entity_decode($textBody, ENT_QUOTES, 'UTF-8');
+    }
+
+    // Create multipart email with HTML and plain text
+    $boundary = uniqid('evently_email_');
+    $body = "--{$boundary}\r\n";
+    $body .= "Content-Type: text/plain; charset=UTF-8\r\n";
+    $body .= "Content-Transfer-Encoding: 8bit\r\n\r\n";
+    $body .= $textBody . "\r\n\r\n";
+    $body .= "--{$boundary}\r\n";
+    $body .= "Content-Type: text/html; charset=UTF-8\r\n";
+    $body .= "Content-Transfer-Encoding: 8bit\r\n\r\n";
+    $body .= $htmlBody . "\r\n\r\n";
+    $body .= "--{$boundary}--";
 
     $headers = [
         "From: " . formatEmailAddress($fromEmail, $fromName),
         "Reply-To: {$fromEmail}",
         "MIME-Version: 1.0",
-        "Content-Type: text/plain; charset=UTF-8",
+        "Content-Type: multipart/alternative; boundary=\"{$boundary}\"",
         "Content-Transfer-Encoding: 8bit"
     ];
 
@@ -77,7 +201,9 @@ function sendAppEmail(string $to, string $subject, string $body): bool {
                 'fromName' => $fromName,
                 'to' => $to,
                 'subject' => $subject,
-                'body' => $body
+                'body' => $body,
+                'isHtml' => true,
+                'boundary' => $boundary
             ]);
         } catch (Exception $e) {
             error_log('SMTP send error: ' . $e->getMessage());
@@ -169,7 +295,9 @@ function smtpSendEmail(array $params): bool {
         $toEmail,
         $params['subject'] ?? '',
         $params['body'] ?? '',
-        $host
+        $host,
+        $params['isHtml'] ?? false,
+        $params['boundary'] ?? null
     );
 
     fwrite($socket, $message);
@@ -186,14 +314,22 @@ function buildSmtpMessage(
     string $toEmail,
     string $subject,
     string $body,
-    string $host
+    string $host,
+    bool $isHtml = false,
+    ?string $boundary = null
 ): string {
+    $contentType = $isHtml && $boundary 
+        ? "multipart/alternative; boundary=\"{$boundary}\""
+        : ($isHtml 
+            ? "text/html; charset=UTF-8" 
+            : "text/plain; charset=UTF-8");
+
     $headers = [
         "From: " . formatEmailAddress($fromEmail, $fromName),
         "To: {$toEmail}",
         "Subject: {$subject}",
         "MIME-Version: 1.0",
-        "Content-Type: text/plain; charset=UTF-8",
+        "Content-Type: {$contentType}",
         "Content-Transfer-Encoding: 8bit",
         "Date: " . date(DATE_RFC2822),
         "Message-ID: <" . uniqid('evently-', true) . '@' . $host . ">"

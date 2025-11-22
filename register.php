@@ -65,7 +65,7 @@ if (isLoggedIn()) {
         </div>
     </div>
     
-    <script src="assets/js/auth1.js"></script>
+    <script src="assets/js/auth2.js"></script>
 </body>
 </html>
 
