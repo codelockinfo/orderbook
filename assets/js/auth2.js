@@ -41,27 +41,60 @@ if (loginForm) {
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
         const errorMessage = document.getElementById('error-message');
+        const submitBtn = loginForm.querySelector('button[type="submit"]');
         
-        try {
-            const response = await fetch(`${API_BASE}auth.php?action=login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ username, password })
-            });
+        // Clear previous errors
+        if (errorMessage) {
+            errorMessage.textContent = '';
+            errorMessage.classList.remove('show');
+        }
+        
+        // Show loading state
+        if (submitBtn) {
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+            submitBtn.classList.add('loading');
             
-            const data = await response.json();
+            // Restore button state function
+            const restoreButton = () => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+                submitBtn.classList.remove('loading');
+            };
             
-            if (data.success) {
-                window.location.href = 'index.php';
-            } else {
-                errorMessage.textContent = data.message;
-                errorMessage.classList.add('show');
+            try {
+                const response = await fetch(`${API_BASE}auth.php?action=login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Keep loading state while redirecting
+                    submitBtn.innerHTML = '<i class="fas fa-check"></i> Success! Redirecting...';
+                    setTimeout(() => {
+                        window.location.href = 'index.php';
+                    }, 500);
+                } else {
+                    restoreButton();
+                    if (errorMessage) {
+                        errorMessage.textContent = data.message || 'Login failed. Please try again.';
+                        errorMessage.classList.add('show');
+                    }
+                }
+            } catch (error) {
+                restoreButton();
+                if (errorMessage) {
+                    errorMessage.textContent = 'An error occurred. Please check your connection and try again.';
+                    errorMessage.classList.add('show');
+                }
+                console.error('Login error:', error);
             }
-        } catch (error) {
-            errorMessage.textContent = 'An error occurred. Please try again.';
-            errorMessage.classList.add('show');
         }
     });
 }
@@ -80,34 +113,69 @@ if (registerForm) {
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirm_password').value;
         const errorMessage = document.getElementById('error-message');
+        const submitBtn = registerForm.querySelector('button[type="submit"]');
+        
+        // Clear previous errors
+        if (errorMessage) {
+            errorMessage.textContent = '';
+            errorMessage.classList.remove('show');
+        }
         
         if (password !== confirmPassword) {
-            errorMessage.textContent = 'Passwords do not match';
-            errorMessage.classList.add('show');
+            if (errorMessage) {
+                errorMessage.textContent = 'Passwords do not match';
+                errorMessage.classList.add('show');
+            }
             return;
         }
         
-        try {
-            const response = await fetch(`${API_BASE}auth.php?action=register`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ username, email, password })
-            });
+        // Show loading state
+        if (submitBtn) {
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
+            submitBtn.classList.add('loading');
             
-            const data = await response.json();
+            // Restore button state function
+            const restoreButton = () => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+                submitBtn.classList.remove('loading');
+            };
             
-            if (data.success) {
-                alert('Registration successful! Please login.');
-                window.location.href = 'login.php';
-            } else {
-                errorMessage.textContent = data.message;
-                errorMessage.classList.add('show');
+            try {
+                const response = await fetch(`${API_BASE}auth.php?action=register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Keep loading state while redirecting
+                    submitBtn.innerHTML = '<i class="fas fa-check"></i> Success! Redirecting...';
+                    setTimeout(() => {
+                        alert('Registration successful! Please login.');
+                        window.location.href = 'login.php';
+                    }, 500);
+                } else {
+                    restoreButton();
+                    if (errorMessage) {
+                        errorMessage.textContent = data.message || 'Registration failed. Please try again.';
+                        errorMessage.classList.add('show');
+                    }
+                }
+            } catch (error) {
+                restoreButton();
+                if (errorMessage) {
+                    errorMessage.textContent = 'An error occurred. Please check your connection and try again.';
+                    errorMessage.classList.add('show');
+                }
+                console.error('Registration error:', error);
             }
-        } catch (error) {
-            errorMessage.textContent = 'An error occurred. Please try again.';
-            errorMessage.classList.add('show');
         }
     });
 }
