@@ -39,7 +39,27 @@ requireLogin();
                             <i class="fas fa-bell"></i>
                             <span id="notificationBadge" class="notification-badge" style="display: none; color: #fff;">ON</span>
                         </button>
-                        <button id="calendarViewBtn" class="btn btn-secondary"><i class="fas fa-calendar-alt"></i> Calendar</button>
+                        <button id="calendarViewBtn" class="btn btn-secondary" onclick="
+                            var modal = document.getElementById('calendarModal');
+                            var view = document.getElementById('calendarView');
+                            if(modal && view) {
+                                modal.classList.add('show');
+                                if(typeof openCalendar === 'function') {
+                                    openCalendar();
+                                } else if(typeof loadCalendar === 'function') {
+                                    loadCalendar();
+                                } else {
+                                    // Fallback: render empty calendar
+                                    view.innerHTML = '<p>Loading calendar...</p>';
+                                    setTimeout(function() {
+                                        if(typeof loadCalendar === 'function') loadCalendar();
+                                    }, 100);
+                                }
+                            } else {
+                                alert('Calendar elements not found');
+                            }
+                            return false;
+                        "><i class="fas fa-calendar-alt"></i> Calendar</button>
                         <a href="groups.php" id="myGroupsLink" class="btn btn-primary" style="position: relative;">
                             <i class="fas fa-users"></i> My Groups
                             <span id="requestCountBadge" class="request-count-badge" style="display: none;">0</span>
@@ -252,8 +272,8 @@ requireLogin();
         </div>
     </div>
     
-    <script src="assets/js/app4.js"></script>
-    <script src="assets/js/calendar.js"></script>
+    <script src="assets/js/app5.js"></script>
+    <script src="assets/js/calendar1.js"></script>
     <script src="assets/js/notifications5.js"></script>
     <script src="assets/js/auto-notifications5.js"></script>
     <style>

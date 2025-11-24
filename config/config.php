@@ -1,21 +1,80 @@
 <?php
-// Start session if not already started
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+// Configure session to last for 1 week (7 days)
+// 7 days = 7 * 24 * 60 * 60 = 604800 seconds
+$sessionLifetime = 604800; // 7 days in seconds
 
-// Timezone - Set to India Standard Time (IST)
-date_default_timezone_set('Asia/Kolkata');
-
-// Detect environment (Local vs Live)
+// Detect environment (Local vs Live) - needed for cookie domain
 $server = $_SERVER['SERVER_NAME'] ?? $_SERVER['HTTP_HOST'] ?? '';
-
 $isLocal = (
     $server === 'localhost' ||
     $server === '127.0.0.1' ||
     str_contains($server, '.test') ||
     str_contains($server, '.local')
 );
+
+// Detect if running in WebView (Flutter, mobile app, etc.)
+$userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+$isWebView = (
+    stripos($userAgent, 'wv') !== false || // Android WebView
+    stripos($userAgent, 'WebView') !== false || // Generic WebView
+    stripos($userAgent, 'Flutter') !== false || // Flutter WebView
+    stripos($userAgent, 'Mobile') !== false && stripos($userAgent, 'Safari') === false // Mobile WebView
+);
+
+// Get the domain for cookie setting (important for WebView compatibility)
+$host = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '';
+$cookieDomain = '';
+if (!empty($host) && !$isLocal) {
+    // Extract domain without port
+    $hostParts = explode(':', $host);
+    $cookieDomain = $hostParts[0];
+    // Don't set domain for localhost or IP addresses
+    if ($cookieDomain === 'localhost' || filter_var($cookieDomain, FILTER_VALIDATE_IP)) {
+        $cookieDomain = '';
+    }
+}
+
+// Determine if we should use secure cookies
+$isSecure = isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] === 'on' || $_SERVER['HTTPS'] === '1');
+// For WebView, sometimes we need to be more flexible with SameSite
+$sameSite = $isWebView ? 'Lax' : 'Lax'; // Both use Lax for same-domain requests
+
+// Set session cookie parameters before starting session
+if (session_status() === PHP_SESSION_NONE) {
+    // Set session cookie lifetime to 7 days
+    session_set_cookie_params([
+        'lifetime' => $sessionLifetime,
+        'path' => '/',
+        'domain' => $cookieDomain, // Set domain for proper cookie sharing
+        'secure' => $isSecure, // Use secure cookies on HTTPS
+        'httponly' => true, // Prevent JavaScript access for security
+        'samesite' => $sameSite // CSRF protection (Lax works for both WebView and browsers)
+    ]);
+    
+    // Set session garbage collection max lifetime to 7 days
+    ini_set('session.gc_maxlifetime', $sessionLifetime);
+    
+    // Ensure session cookie is persistent (not session-only)
+    ini_set('session.cookie_lifetime', $sessionLifetime);
+    
+    // Start session
+    session_start();
+    
+    // Regenerate session ID periodically for security (every 30 minutes)
+    if (!isset($_SESSION['last_regeneration'])) {
+        $_SESSION['last_regeneration'] = time();
+    } else {
+        $timeSinceRegeneration = time() - $_SESSION['last_regeneration'];
+        // Regenerate every 30 minutes (1800 seconds)
+        if ($timeSinceRegeneration > 1800) {
+            session_regenerate_id(true);
+            $_SESSION['last_regeneration'] = time();
+        }
+    }
+}
+
+// Timezone - Set to India Standard Time (IST)
+date_default_timezone_set('Asia/Kolkata');
 
 // Auto-set BASE_URL
 if ($isLocal) {

@@ -69,6 +69,13 @@ function populateGroupDropdowns() {
         groups.map(g => `<option value="${g.id}">${g.name}</option>`).join('');
     groupFilter.innerHTML = filterOptions;
     
+    // Automatically select the first group if groups exist
+    if (groups.length > 0 && !groupFilter.value) {
+        groupFilter.value = groups[0].id;
+        // Trigger loadOrders to filter by the selected group
+        loadOrders();
+    }
+    
     // Populate form dropdown
     const formOptions = '<option value="">No Group</option>' + 
         groups.map(g => `<option value="${g.id}">${g.name}</option>`).join('');
@@ -561,7 +568,17 @@ searchInput.addEventListener('input', () => {
 
 dateFilter.addEventListener('change', loadOrders);
 statusFilter.addEventListener('change', loadOrders);
-groupFilter.addEventListener('change', loadOrders);
+groupFilter.addEventListener('change', () => {
+    loadOrders();
+    // Reload calendar if it's open
+    const calendarModal = document.getElementById('calendarModal');
+    if (calendarModal && calendarModal.classList.contains('show')) {
+        // Check if loadCalendar function exists (from calendar1.js)
+        if (typeof loadCalendar === 'function') {
+            loadCalendar();
+        }
+    }
+});
 
 // Open Logout Confirmation Modal
 logoutBtn.addEventListener('click', () => {

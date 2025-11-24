@@ -362,15 +362,48 @@ else if ($method === 'GET' && $action === 'calendar') {
     $userId = getCurrentUserId();
     $month = $_GET['month'] ?? date('m');
     $year = $_GET['year'] ?? date('Y');
+    $groupId = $_GET['group_id'] ?? '';
     
     try {
-        $stmt = $db->prepare("SELECT order_date, COUNT(*) as count FROM orders WHERE user_id = ? AND is_deleted = 0 AND MONTH(order_date) = ? AND YEAR(order_date) = ? GROUP BY order_date");
-        $stmt->execute([$userId, $month, $year]);
+        // Build query to show orders where:
+        // 1. User created the order, OR
+        // 2. User is the group creator, OR
+        // 3. User is an active member of the group
+        $query = "SELECT o.order_date, COUNT(*) as count 
+                  FROM orders o 
+                  LEFT JOIN groups g ON o.group_id = g.id 
+                  LEFT JOIN group_members gm ON o.group_id = gm.group_id AND gm.user_id = ? AND gm.status = 'active'
+                  WHERE o.is_deleted = 0
+                  AND MONTH(o.order_date) = ?
+                  AND YEAR(o.order_date) = ?
+                  AND (
+                      o.user_id = ?
+                      OR g.created_by = ?
+                      OR gm.id IS NOT NULL
+                  )";
+        
+        $params = [$userId, $month, $year, $userId, $userId];
+        
+        // Add group filter if specified
+        if (!empty($groupId)) {
+            $query .= " AND o.group_id = ?";
+            $params[] = $groupId;
+        }
+        
+        $query .= " GROUP BY o.order_date";
+        
+        $stmt = $db->prepare($query);
+        $stmt->execute($params);
         $calendar = $stmt->fetchAll();
         
+        ob_clean();
         echo json_encode(['success' => true, 'calendar' => $calendar]);
+        exit;
     } catch (PDOException $e) {
+        ob_clean();
+        http_response_code(500);
         echo json_encode(['success' => false, 'message' => 'Failed to fetch calendar data: ' . $e->getMessage()]);
+        exit;
     }
 }
 

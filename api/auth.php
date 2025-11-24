@@ -566,9 +566,13 @@ else if ($action === 'login' && $method === 'POST') {
         $user = $stmt->fetch();
         
         if ($user && password_verify($password, $user['password'])) {
+            // Regenerate session ID on login for security
+            session_regenerate_id(true);
+            
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
             $_SESSION['email'] = $user['email'];
+            $_SESSION['last_regeneration'] = time();
             
             echo json_encode([
                 'success' => true,
