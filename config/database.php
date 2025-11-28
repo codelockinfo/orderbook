@@ -4,6 +4,18 @@
 $isLocal = in_array($_SERVER['SERVER_NAME'], ['localhost', '127.0.0.1']) 
            || strpos($_SERVER['SERVER_NAME'], '.test') !== false;
 
+// FCM Configuration is now in config.php (using FCM v1 API with service account)
+// FCM Configuration (v1 API)
+// Using Firebase Service Account JSON for authentication
+// Service Account JSON file should be placed in config/ directory
+if (!defined('FCM_SERVICE_ACCOUNT_PATH')) {
+    define('FCM_SERVICE_ACCOUNT_PATH', __DIR__ . '/firebase-service-account.json');
+}
+
+// Firebase Project ID (found in service account JSON or Firebase Console)
+if (!defined('FCM_PROJECT_ID')) {
+    define('FCM_PROJECT_ID', 'evently-42c58'); // Your Firebase Project ID
+}
 // Database Configuration Based on Environment
 if ($isLocal) {
     // LOCAL Settings

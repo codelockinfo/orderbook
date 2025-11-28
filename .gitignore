@@ -8,6 +8,11 @@ composer.lock
 .env
 .env.local
 
+# Firebase Service Account JSON (contains private keys)
+config/firebase-service-account.json
+**/firebase-service-account.json
+**/*firebase-adminsdk*.json
+
 # IDE files
 .vscode/
 .idea/

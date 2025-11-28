@@ -4,7 +4,8 @@
     "type": "project",
     "require": {
         "php": ">=7.4",
-        "minishlink/web-push": "^8.0"
+        "minishlink/web-push": "^8.0",
+        "google/apiclient": "^2.12"
     },
     "require-dev": {},
     "autoload": {

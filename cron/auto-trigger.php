@@ -15,6 +15,14 @@ header("Access-Control-Allow-Origin: $allowed_origin");
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/database.php';
 
+// Include Composer autoloader for Google API Client
+if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
+    require_once __DIR__ . '/../vendor/autoload.php';
+}
+
+// Include FCM Notification Sender
+require_once __DIR__ . '/../backend/FCMNotificationSender.php';
+
 // Ensure timezone is set to India (Asia/Kolkata)
 if (!ini_get('date.timezone') || ini_get('date.timezone') !== 'Asia/Kolkata') {
     date_default_timezone_set('Asia/Kolkata');
@@ -37,11 +45,39 @@ try {
     $result = $sender->processNotifications();
     $output = ob_get_clean();
     
+    // Send FCM notifications to mobile app users (FCM v1 API)
+    $fcmResult = null;
+    try {
+        // Check if service account file exists
+        if (file_exists(FCM_SERVICE_ACCOUNT_PATH)) {
+            $fcmSender = new FCMNotificationSender($db);
+            $fcmResult = $fcmSender->sendToAll(
+                'Evently Notification',
+                'You have a new notification from Evently!',
+                [
+                    'type' => 'daily_notification',
+                    'timestamp' => time(),
+                ]
+            );
+        } else {
+            $fcmResult = [
+                'success' => false,
+                'message' => 'Firebase service account file not found: ' . FCM_SERVICE_ACCOUNT_PATH
+            ];
+        }
+    } catch (Exception $fcmError) {
+        $fcmResult = [
+            'success' => false,
+            'error' => $fcmError->getMessage()
+        ];
+    }
+    
     // Return JSON response
     echo json_encode([
         'success' => true,
         'timestamp' => date('Y-m-d H:i:s'),
         'result' => $result,
+        'fcm_notifications' => $fcmResult,
         'message' => 'Auto-trigger completed successfully'
     ]);
     
