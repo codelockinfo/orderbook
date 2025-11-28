@@ -1,6 +1,6 @@
 # Composer
 /vendor/
-composer.lock
+# Note: composer.lock should be committed for consistent deployments
 
 # Environment and config files with sensitive data
 # Note: config/config.php is tracked but VAPID keys should be set on server
