@@ -44,7 +44,7 @@ if (file_exists($configPath)) {
     require_once $configPath;
 }
 if (file_exists($dbPath)) {
-    require_once $dbPath;
+    require_once $dbPath; 
 } else {
     // Fallback: If database.php doesn't exist, create connection directly
     // This uses the same pattern as your database.php
