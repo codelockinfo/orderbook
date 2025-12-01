@@ -13,7 +13,7 @@ requireLogin();
     <meta name="apple-mobile-web-app-title" content="Evently">
     <title>Evently</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/style2.css">
+    <link rel="stylesheet" href="assets/css/style3.css">
     <link rel="manifest" href="manifest.php">
     <link rel="icon" type="image/png" href="assets/images/bookify logo (5).png">
     <!-- iOS icons - prevent black border by using proper sizes -->
@@ -292,7 +292,7 @@ requireLogin();
     </div>
     
     <script src="assets/js/app5.js"></script>
-    <script src="assets/js/calendar1.js"></script>
+    <script src="assets/js/calendar2.js"></script>
     <script src="assets/js/notifications5.js"></script>
     <script src="assets/js/auto-notifications5.js"></script>
     <style>

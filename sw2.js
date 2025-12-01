@@ -17,10 +17,10 @@ const urlsToCache = [
   BASE_PATH + 'index.php',
   BASE_PATH + 'login.php',
   BASE_PATH + 'register.php',
-  BASE_PATH + 'assets/css/style2.css',
+  BASE_PATH + 'assets/css/style3.css',
   BASE_PATH + 'assets/js/app5.js',
   BASE_PATH + 'assets/js/auth2.js',
-  BASE_PATH + 'assets/js/calendar1.js',
+  BASE_PATH + 'assets/js/calendar2.js',
   BASE_PATH + 'manifest.php'
 ];
 

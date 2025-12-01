@@ -794,7 +794,7 @@ groupFilter.addEventListener('change', () => {
     // Reload calendar if it's open
     const calendarModal = document.getElementById('calendarModal');
     if (calendarModal && calendarModal.classList.contains('show')) {
-        // Check if loadCalendar function exists (from calendar1.js)
+        // Check if loadCalendar function exists (from calendar2.js)
         if (typeof loadCalendar === 'function') {
             loadCalendar();
         }

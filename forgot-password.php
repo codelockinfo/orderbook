@@ -14,7 +14,7 @@ if (isLoggedIn()) {
     <meta name="theme-color" content="#4CAF50">
     <title>Forgot Password - Evently</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/style2.css">
+    <link rel="stylesheet" href="assets/css/style3.css">
     <link rel="manifest" href="manifest.php">
     <link rel="icon" type="image/png" href="assets/images/icon-192.png">
 </head>

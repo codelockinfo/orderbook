@@ -139,7 +139,7 @@
   🎨 CUSTOMIZATION
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  Colors    → assets/css/style2.css
+  Colors    → assets/css/style3.css
   App Name  → manifest.json
   Logo      → assets/images/ (replace icons)
   Database  → config/database.php
