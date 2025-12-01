@@ -1972,9 +1972,6 @@ input[type="checkbox"] {
 
 /* Responsive Tags */
 @media (max-width: 768px) {
-    .tag-input-row {
-        flex-direction: row;
-    }
     .color-picker-wrapper {
         min-width: 38px;
     }
