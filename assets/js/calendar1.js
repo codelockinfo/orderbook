@@ -4,6 +4,13 @@
 // Since app5.js declares API_BASE with const (not global), we'll use the path directly
 const CALENDAR_API = 'api/';
 
+// Helper function to escape HTML
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 let calendarViewBtn;
 let calendarModal;
 let calendarView;
@@ -178,6 +185,10 @@ async function loadCalendar() {
                     count: item.count || 0,
                     tags: item.tags || []
                 };
+                // Debug: Log tags for dates with tags
+                if (item.tags && item.tags.length > 0) {
+                    console.log('Date:', item.order_date, 'Tags:', item.tags);
+                }
             });
             // Re-render with data
             renderCalendar();
@@ -267,10 +278,33 @@ function renderCalendar() {
             const tagsToShow = tags.slice(0, 2);
             tagsHtml = '<div class="calendar-day-tags">';
             tagsToShow.forEach(tag => {
-                const tagName = typeof tag === 'string' ? tag : (tag.name || '');
-                const tagColor = typeof tag === 'string' ? '#4CAF50' : (tag.color || '#4CAF50');
+                let tagName = '';
+                let tagColor = '#4CAF50'; // Default green
+                
+                // Handle different tag formats
+                if (typeof tag === 'string') {
+                    tagName = tag;
+                } else if (tag && typeof tag === 'object') {
+                    tagName = tag.name || tag.tag || '';
+                    tagColor = tag.color || tag.tagColor || '#4CAF50';
+                }
+                
+                // Ensure color is valid hex color
+                if (tagColor && typeof tagColor === 'string') {
+                    if (!tagColor.startsWith('#')) {
+                        tagColor = '#' + tagColor;
+                    }
+                    // Validate hex color (3 or 6 digits)
+                    if (!/^#[0-9A-Fa-f]{3,6}$/.test(tagColor)) {
+                        tagColor = '#4CAF50'; // Fallback to default
+                    }
+                } else {
+                    tagColor = '#4CAF50'; // Fallback to default
+                }
+                
                 const textColor = getContrastColor(tagColor);
-                tagsHtml += `<span class="calendar-tag" style="background-color: ${tagColor}; color: ${textColor};">${tagName}</span>`;
+                // Use inline style with !important to ensure colors display
+                tagsHtml += `<span class="calendar-tag" style="background-color: ${tagColor} !important; color: ${textColor} !important; border-color: ${tagColor} !important;">${escapeHtml(tagName)}</span>`;
             });
             tagsHtml += '</div>';
         }
