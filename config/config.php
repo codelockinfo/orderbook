@@ -83,16 +83,25 @@ if (session_status() === PHP_SESSION_NONE) {
         $possibleDomains = [
             $cookieDomain,
             '',
-            'localhost',
-            parse_url(BASE_URL, PHP_URL_HOST),
-            str_replace('www.', '', parse_url(BASE_URL, PHP_URL_HOST))
+            'localhost'
         ];
         
-        foreach (array_unique($possibleDomains) as $domain) {
-            if ($domain !== null) {
-                setcookie($sessionName, '', time() - 3600, '/', $domain);
-                setcookie($sessionName, '', time() - 3600, '/', '.' . $domain);
-            }
+        // Add host-based domains if available
+        if (!empty($host)) {
+            $hostParts = explode(':', $host);
+            $hostDomain = $hostParts[0];
+            $possibleDomains[] = $hostDomain;
+            $possibleDomains[] = str_replace('www.', '', $hostDomain);
+        }
+        
+        // Remove null and empty duplicates
+        $possibleDomains = array_filter(array_unique($possibleDomains), function($d) {
+            return $d !== null && $d !== '';
+        });
+        
+        foreach ($possibleDomains as $domain) {
+            setcookie($sessionName, '', time() - 3600, '/', $domain);
+            setcookie($sessionName, '', time() - 3600, '/', '.' . $domain);
         }
         
         // Destroy and restart session
