@@ -55,9 +55,22 @@ class ThreeTimesNotificationSender {
     public function __construct($db) {
         $this->db = $db;
         
+        // Ensure autoloader is loaded
+        $autoloadPath = __DIR__ . '/../vendor/autoload.php';
+        if (file_exists($autoloadPath) && !class_exists('Minishlink\WebPush\WebPush')) {
+            require_once $autoloadPath;
+        }
+        
         // Initialize web-push if library is available
         if (class_exists('Minishlink\WebPush\WebPush')) {
             try {
+                // Check if VAPID constants are defined
+                if (!defined('VAPID_SUBJECT') || !defined('VAPID_PUBLIC_KEY') || !defined('VAPID_PRIVATE_KEY')) {
+                    error_log('VAPID keys not defined in config.php');
+                    $this->webPush = null;
+                    return;
+                }
+                
                 $auth = [
                     'VAPID' => [
                         'subject' => VAPID_SUBJECT,
@@ -73,7 +86,13 @@ class ThreeTimesNotificationSender {
                 $this->webPush = null;
             }
         } else {
-            error_log('Web Push library not found. Install with: composer require minishlink/web-push');
+            $errorMsg = 'Web Push library not found. ';
+            if (file_exists($autoloadPath)) {
+                $errorMsg .= 'Autoloader exists but class not found. Try: composer dump-autoload';
+            } else {
+                $errorMsg .= 'Install with: composer require minishlink/web-push';
+            }
+            error_log($errorMsg);
             $this->webPush = null;
         }
     }

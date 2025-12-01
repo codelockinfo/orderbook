@@ -15,9 +15,12 @@ header("Access-Control-Allow-Origin: $allowed_origin");
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/database.php';
 
-// Include Composer autoloader for Google API Client
-if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
-    require_once __DIR__ . '/../vendor/autoload.php';
+// Include Composer autoloader (required for web-push library)
+$autoloadPath = __DIR__ . '/../vendor/autoload.php';
+if (file_exists($autoloadPath)) {
+    require_once $autoloadPath;
+} else {
+    error_log('WARNING: vendor/autoload.php not found. Composer dependencies may not be installed.');
 }
 
 // Include FCM Notification Sender
