@@ -41,7 +41,7 @@ $sameSite = $isWebView ? 'Lax' : 'Lax'; // Both use Lax for same-domain requests
 
 // Set session cookie parameters before starting session
 if (session_status() === PHP_SESSION_NONE) {
-    // Set session cookie lifetime to 7 days
+    // Set session cookie parameters FIRST (before session_start)
     session_set_cookie_params([
         'lifetime' => $sessionLifetime,
         'path' => '/',
@@ -59,6 +59,47 @@ if (session_status() === PHP_SESSION_NONE) {
     
     // Start session
     session_start();
+    
+    // Check if we need to handle domain migration
+    // If session exists but doesn't have user_id or domain changed, clear it
+    $currentDomain = $cookieDomain ?: $host;
+    
+    // Check if domain has changed
+    if (isset($_SESSION['current_domain']) && $_SESSION['current_domain'] !== $currentDomain) {
+        // Domain changed - destroy old session and start fresh
+        session_destroy();
+        session_start();
+        $_SESSION['current_domain'] = $currentDomain;
+    } else if (!isset($_SESSION['current_domain'])) {
+        // New session - store current domain
+        $_SESSION['current_domain'] = $currentDomain;
+    }
+    
+    // If session exists but user_id is not set (orphaned session from old domain), clear it
+    if (isset($_SESSION) && !isset($_SESSION['user_id']) && isset($_COOKIE[session_name()])) {
+        // This might be an old session from previous domain
+        // Clear the session cookie for all possible domains
+        $sessionName = session_name();
+        $possibleDomains = [
+            $cookieDomain,
+            '',
+            'localhost',
+            parse_url(BASE_URL, PHP_URL_HOST),
+            str_replace('www.', '', parse_url(BASE_URL, PHP_URL_HOST))
+        ];
+        
+        foreach (array_unique($possibleDomains) as $domain) {
+            if ($domain !== null) {
+                setcookie($sessionName, '', time() - 3600, '/', $domain);
+                setcookie($sessionName, '', time() - 3600, '/', '.' . $domain);
+            }
+        }
+        
+        // Destroy and restart session
+        session_destroy();
+        session_start();
+        $_SESSION['current_domain'] = $currentDomain;
+    }
     
     // Regenerate session ID periodically for security (every 30 minutes)
     if (!isset($_SESSION['last_regeneration'])) {

@@ -131,6 +131,7 @@ async function loadCalendar() {
     
     // Render calendar immediately with empty data (no loading state)
     calendarData = {};
+    // Initialize calendarData structure
     renderCalendar();
     
     // Then try to load data from API
@@ -173,7 +174,10 @@ async function loadCalendar() {
         if (data.success && data.calendar && Array.isArray(data.calendar)) {
             calendarData = {};
             data.calendar.forEach(item => {
-                calendarData[item.order_date] = item.count;
+                calendarData[item.order_date] = {
+                    count: item.count || 0,
+                    tags: item.tags || []
+                };
             });
             // Re-render with data
             renderCalendar();
@@ -236,7 +240,9 @@ function renderCalendar() {
     // Days of month
     for (let day = 1; day <= daysInMonth; day++) {
         const dateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        const count = calendarData[dateStr] || 0;
+        const dateData = calendarData[dateStr] || { count: 0, tags: [] };
+        const count = dateData.count || 0;
+        const tags = dateData.tags || [];
         const isToday = today.getFullYear() === currentYear && 
                         today.getMonth() + 1 === currentMonth && 
                         today.getDate() === day;
@@ -245,10 +251,35 @@ function renderCalendar() {
         if (count > 0) classes += ' has-orders';
         if (isToday) classes += ' today';
         
+        // Helper function to get contrast color
+        const getContrastColor = (hexColor) => {
+            const hex = hexColor.replace('#', '');
+            const r = parseInt(hex.substr(0, 2), 16);
+            const g = parseInt(hex.substr(2, 2), 16);
+            const b = parseInt(hex.substr(4, 2), 16);
+            const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+            return luminance > 0.5 ? '#000000' : '#ffffff';
+        };
+        
+        // Render tags (max 2)
+        let tagsHtml = '';
+        if (tags.length > 0) {
+            const tagsToShow = tags.slice(0, 2);
+            tagsHtml = '<div class="calendar-day-tags">';
+            tagsToShow.forEach(tag => {
+                const tagName = typeof tag === 'string' ? tag : (tag.name || '');
+                const tagColor = typeof tag === 'string' ? '#4CAF50' : (tag.color || '#4CAF50');
+                const textColor = getContrastColor(tagColor);
+                tagsHtml += `<span class="calendar-tag" style="background-color: ${tagColor}; color: ${textColor};">${tagName}</span>`;
+            });
+            tagsHtml += '</div>';
+        }
+        
         html += `
             <div class="${classes}" onclick="viewDateOrders('${dateStr}')">
                 <div class="calendar-day-number">${day}</div>
                 ${count > 0 ? `<div class="calendar-day-count">${count} order${count > 1 ? 's' : ''}</div>` : ''}
+                ${tagsHtml}
             </div>
         `;
     }

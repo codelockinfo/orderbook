@@ -33,18 +33,19 @@ if ($method === 'GET' && $action === 'list') {
     $status = $_GET['status'] ?? '';
     $date = $_GET['date'] ?? '';
     $groupId = $_GET['group_id'] ?? '';
-    
-$query = "SELECT DISTINCT o.*, g.name as group_name 
+    // Include the username of the user who created the order
+    $query = "SELECT DISTINCT o.*, g.name as group_name, u.username AS added_by 
           FROM orders o 
           LEFT JOIN groups g ON o.group_id = g.id 
           LEFT JOIN group_members gm ON o.group_id = gm.group_id AND gm.user_id = ? AND gm.status = 'active'
+          LEFT JOIN users u ON o.user_id = u.id
           WHERE o.is_deleted = 0
           AND (
               o.user_id = ?
               OR g.created_by = ?
               OR gm.id IS NOT NULL
           )";
-$params = [$userId, $userId, $userId];
+    $params = [$userId, $userId, $userId];
     
     if (!empty($search)) {
         $query .= " AND o.order_number LIKE ?";
@@ -87,10 +88,11 @@ else if ($method === 'GET' && $action === 'get' && isset($_GET['id'])) {
     
     try {
         $stmt = $db->prepare("
-            SELECT o.*, g.name as group_name
+            SELECT o.*, g.name as group_name, u.username AS added_by
             FROM orders o
             LEFT JOIN groups g ON o.group_id = g.id
             LEFT JOIN group_members gm ON o.group_id = gm.group_id AND gm.user_id = ? AND gm.status = 'active'
+            LEFT JOIN users u ON o.user_id = u.id
             WHERE o.id = ?
               AND o.is_deleted = 0
               AND (
@@ -122,6 +124,7 @@ else if ($method === 'POST' && $action === 'create') {
     $orderTime = $data['order_time'] ?? '';
     $status = $data['status'] ?? 'Pending';
     $groupId = !empty($data['group_id']) ? intval($data['group_id']) : null;
+    $tags = $data['tags'] ?? [];
     
     if (empty($orderNumber) || empty($orderDate) || empty($orderTime)) {
         ob_clean();
@@ -155,8 +158,25 @@ else if ($method === 'POST' && $action === 'create') {
     }
     
     try {
-        $stmt = $db->prepare("INSERT INTO orders (order_number, order_date, order_time, status, user_id, group_id) VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$orderNumber, $orderDate, $orderTime, $status, $userId, $groupId]);
+        // Check if tags column exists, if not, use NULL
+        $tagsValue = null;
+        if (is_array($tags) && count($tags) > 0) {
+            $tagsValue = json_encode($tags, JSON_UNESCAPED_UNICODE);
+        }
+        
+        // Try to insert with tags column first
+        try {
+            $stmt = $db->prepare("INSERT INTO orders (order_number, order_date, order_time, status, user_id, group_id, tags) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$orderNumber, $orderDate, $orderTime, $status, $userId, $groupId, $tagsValue]);
+        } catch (PDOException $e) {
+            // If tags column doesn't exist, try without it
+            if (strpos($e->getMessage(), 'tags') !== false || strpos($e->getMessage(), 'Unknown column') !== false) {
+                $stmt = $db->prepare("INSERT INTO orders (order_number, order_date, order_time, status, user_id, group_id) VALUES (?, ?, ?, ?, ?, ?)");
+                $stmt->execute([$orderNumber, $orderDate, $orderTime, $status, $userId, $groupId]);
+            } else {
+                throw $e;
+            }
+        }
         
         $orderId = $db->lastInsertId();
         
@@ -218,6 +238,7 @@ else if ($method === 'POST' && $action === 'update') {
     $orderTime = $data['order_time'] ?? '';
     $status = $data['status'] ?? 'Pending';
     $groupId = !empty($data['group_id']) ? intval($data['group_id']) : null;
+    $tags = $data['tags'] ?? [];
     
     if ($orderId <= 0) {
         ob_clean();
@@ -251,8 +272,25 @@ else if ($method === 'POST' && $action === 'update') {
     }
     
     try {
-        $stmt = $db->prepare("UPDATE orders SET order_number = ?, order_date = ?, order_time = ?, status = ?, group_id = ? WHERE id = ? AND user_id = ? AND is_deleted = 0");
-        $stmt->execute([$orderNumber, $orderDate, $orderTime, $status, $groupId, $orderId, $userId]);
+        // Check if tags column exists, if not, use NULL
+        $tagsValue = null;
+        if (is_array($tags) && count($tags) > 0) {
+            $tagsValue = json_encode($tags, JSON_UNESCAPED_UNICODE);
+        }
+        
+        // Try to update with tags column first
+        try {
+            $stmt = $db->prepare("UPDATE orders SET order_number = ?, order_date = ?, order_time = ?, status = ?, group_id = ?, tags = ? WHERE id = ? AND user_id = ? AND is_deleted = 0");
+            $stmt->execute([$orderNumber, $orderDate, $orderTime, $status, $groupId, $tagsValue, $orderId, $userId]);
+        } catch (PDOException $e) {
+            // If tags column doesn't exist, try without it
+            if (strpos($e->getMessage(), 'tags') !== false || strpos($e->getMessage(), 'Unknown column') !== false) {
+                $stmt = $db->prepare("UPDATE orders SET order_number = ?, order_date = ?, order_time = ?, status = ?, group_id = ? WHERE id = ? AND user_id = ? AND is_deleted = 0");
+                $stmt->execute([$orderNumber, $orderDate, $orderTime, $status, $groupId, $orderId, $userId]);
+            } else {
+                throw $e;
+            }
+        }
         
         // Automatically process notifications for the updated order
         // Wrap in try-catch to prevent notification errors from breaking order update
@@ -365,11 +403,8 @@ else if ($method === 'GET' && $action === 'calendar') {
     $groupId = $_GET['group_id'] ?? '';
     
     try {
-        // Build query to show orders where:
-        // 1. User created the order, OR
-        // 2. User is the group creator, OR
-        // 3. User is an active member of the group
-        $query = "SELECT o.order_date, COUNT(*) as count 
+        // Build query to get orders with tags
+        $query = "SELECT o.order_date, o.tags
                   FROM orders o 
                   LEFT JOIN groups g ON o.group_id = g.id 
                   LEFT JOIN group_members gm ON o.group_id = gm.group_id AND gm.user_id = ? AND gm.status = 'active'
@@ -390,11 +425,64 @@ else if ($method === 'GET' && $action === 'calendar') {
             $params[] = $groupId;
         }
         
-        $query .= " GROUP BY o.order_date";
+        $query .= " ORDER BY o.order_date";
         
         $stmt = $db->prepare($query);
         $stmt->execute($params);
-        $calendar = $stmt->fetchAll();
+        $orders = $stmt->fetchAll();
+        
+        // Group by date and collect tags (max 2 per date)
+        $calendar = [];
+        $dateTags = [];
+        
+        foreach ($orders as $order) {
+            $date = $order['order_date'];
+            
+            // Initialize date entry if not exists
+            if (!isset($calendar[$date])) {
+                $calendar[$date] = ['order_date' => $date, 'count' => 0, 'tags' => []];
+            }
+            
+            $calendar[$date]['count']++;
+            
+            // Collect tags (max 2 per date)
+            if (!empty($order['tags']) && count($calendar[$date]['tags']) < 2) {
+                try {
+                    $tags = json_decode($order['tags'], true);
+                    if (is_array($tags)) {
+                        foreach ($tags as $tag) {
+                            if (count($calendar[$date]['tags']) >= 2) break;
+                            
+                            $tagName = is_array($tag) && isset($tag['name']) ? $tag['name'] : (is_string($tag) ? $tag : null);
+                            $tagColor = is_array($tag) && isset($tag['color']) ? $tag['color'] : '#4CAF50';
+                            
+                            if ($tagName) {
+                                // Check if tag already exists for this date
+                                $exists = false;
+                                foreach ($calendar[$date]['tags'] as $existingTag) {
+                                    if ($existingTag['name'] === $tagName) {
+                                        $exists = true;
+                                        break;
+                                    }
+                                }
+                                
+                                if (!$exists) {
+                                    $calendar[$date]['tags'][] = [
+                                        'name' => $tagName,
+                                        'color' => $tagColor
+                                    ];
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception $e) {
+                    // Ignore JSON decode errors
+                }
+            }
+        }
+        
+        // Convert to indexed array
+        $calendar = array_values($calendar);
         
         ob_clean();
         echo json_encode(['success' => true, 'calendar' => $calendar]);

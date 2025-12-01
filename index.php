@@ -123,6 +123,7 @@ requireLogin();
                             <th>Date</th>
                             <th>Time</th>
                             <th>Group</th>
+                            <th>Added By</th>
                             <th style="text-align: center;">Action</th>
                         </tr>
                     </thead>
@@ -182,6 +183,24 @@ requireLogin();
                         <option value="Completed">Completed</option>
                         <option value="Cancelled">Cancelled</option>
                     </select>
+                </div>
+
+                <!-- Tags input -->
+                <div class="form-group">
+                    <label for="orderTags">Tags</label>
+                    <div class="tags-input-wrapper">
+                        <div class="tag-input-row">
+                            <div class="color-picker-wrapper">
+                            <input type="color" id="tagColorPicker" value="#4CAF50" title="Select tag color">
+                                <label for="tagColorPicker" class="color-picker-label" title="Tag Color" id="colorPickerLabel">
+                                    <i class="fas fa-palette"></i>
+                                </label>
+                            </div>
+                            <div id="orderTags" class="tags-input" data-placeholder="Type and press Enter"></div>
+                        </div>
+                        <div id="tagsDisplay" class="tags-display-container"></div>
+                    </div>
+                    <small style="color: #777;">Type a tag and press Enter to add it. Click × to remove.</small>
                 </div>
                 
                 <div class="modal-footer">

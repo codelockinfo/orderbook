@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS orders (
     status ENUM('Pending', 'Processing', 'Completed', 'Cancelled') DEFAULT 'Pending',
     is_deleted TINYINT(1) DEFAULT 0,
     user_id INT NOT NULL,
+    tags TEXT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
