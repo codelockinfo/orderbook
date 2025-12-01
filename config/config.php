@@ -126,11 +126,15 @@ if (session_status() === PHP_SESSION_NONE) {
 // Timezone - Set to India Standard Time (IST)
 date_default_timezone_set('Asia/Kolkata');
 
-// Auto-set BASE_URL
+// Auto-set BASE_URL based on environment
 if ($isLocal) {
+    // Local development
     define('BASE_URL', 'http://localhost/orderbook/');
+} elseif (str_contains($server, 'evently.happyeventsurat.com')) {
+    // Staging/Development server
+    define('BASE_URL', 'https://evently.happyeventsurat.com/');
 } else {
-    // 🔹 Replace with your LIVE URL
+    // Production/Live server
     define('BASE_URL', 'https://forestgreen-bison-718478.hostingersite.com/');
 }
 
