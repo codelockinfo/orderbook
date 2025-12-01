@@ -123,24 +123,91 @@ class ThreeTimesNotificationSender {
      * Find orders needing notification for the current period
      */
     public function findOrdersNeedingNotification($period) {
+        // Ensure timezone is set correctly
+        $currentTimezone = date_default_timezone_get();
+        $currentDate = date('Y-m-d');
+        $currentTime = date('H:i:s');
         $tomorrow = date('Y-m-d', strtotime('+1 day'));
+        
+        echo "⏰ Timezone: {$currentTimezone}\n";
+        echo "   Current date: {$currentDate}\n";
+        echo "   Current time: {$currentTime}\n";
+        echo "   Tomorrow date: {$tomorrow}\n\n";
         
         // Build SQL based on which notification period
         $notificationField = "notification_{$period}_sent";
         
+        // Debug: Log what we're looking for
+        echo "🔍 Searching for orders with:\n";
+        echo "   - Date: {$tomorrow} (tomorrow)\n";
+        echo "   - Notification field: {$notificationField}\n";
+        echo "   - Status: Pending or Processing\n";
+        echo "   - Not deleted\n\n";
+        
+        // First, let's check if there are ANY orders for tomorrow (for debugging)
+        $checkSql = "SELECT COUNT(*) as total, 
+                            SUM(CASE WHEN is_deleted = 0 THEN 1 ELSE 0 END) as not_deleted,
+                            SUM(CASE WHEN status IN ('Pending', 'Processing') THEN 1 ELSE 0 END) as pending_or_processing,
+                            SUM(CASE WHEN {$notificationField} = 0 OR {$notificationField} IS NULL THEN 1 ELSE 0 END) as notification_not_sent
+                     FROM orders 
+                     WHERE order_date = :tomorrow";
+        $checkStmt = $this->db->prepare($checkSql);
+        $checkStmt->execute(['tomorrow' => $tomorrow]);
+        $checkResult = $checkStmt->fetch(PDO::FETCH_ASSOC);
+        
+        echo "📊 Orders for tomorrow ({$tomorrow}):\n";
+        echo "   - Total orders: " . ($checkResult['total'] ?? 0) . "\n";
+        echo "   - Not deleted: " . ($checkResult['not_deleted'] ?? 0) . "\n";
+        echo "   - Pending/Processing: " . ($checkResult['pending_or_processing'] ?? 0) . "\n";
+        echo "   - Notification not sent: " . ($checkResult['notification_not_sent'] ?? 0) . "\n\n";
+        
+        // Main query - handle NULL values for notification fields
         $sql = "SELECT o.*, u.username, u.email 
                 FROM orders o
                 JOIN users u ON o.user_id = u.id
                 WHERE o.order_date = :tomorrow
-                AND o.{$notificationField} = 0
+                AND (o.{$notificationField} = 0 OR o.{$notificationField} IS NULL)
                 AND o.is_deleted = 0
                 AND o.status IN ('Pending', 'Processing')
                 ORDER BY o.order_time ASC";
         
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['tomorrow' => $tomorrow]);
+        $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        // Debug: Show what we found
+        if (count($orders) > 0) {
+            echo "✅ Found " . count($orders) . " order(s) needing notification:\n";
+            foreach ($orders as $order) {
+                echo "   - Order #{$order['order_number']} (ID: {$order['id']}) - Status: {$order['status']}\n";
+            }
+        } else {
+            echo "⚠️  No orders found matching all criteria.\n";
+            // Let's see what orders exist for tomorrow
+            $debugSql = "SELECT o.id, o.order_number, o.order_date, o.status, o.is_deleted, 
+                                o.notification_1_sent, o.notification_2_sent, o.notification_3_sent
+                         FROM orders o
+                         WHERE o.order_date = :tomorrow
+                         LIMIT 5";
+            $debugStmt = $this->db->prepare($debugSql);
+            $debugStmt->execute(['tomorrow' => $tomorrow]);
+            $debugOrders = $debugStmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            if (count($debugOrders) > 0) {
+                echo "\n📋 Orders found for tomorrow (for debugging):\n";
+                foreach ($debugOrders as $debugOrder) {
+                    echo "   - Order #{$debugOrder['order_number']}:\n";
+                    echo "     * Status: {$debugOrder['status']}\n";
+                    echo "     * Deleted: " . ($debugOrder['is_deleted'] ? 'Yes' : 'No') . "\n";
+                    echo "     * Notification 1 sent: " . ($debugOrder['notification_1_sent'] ?? 'NULL') . "\n";
+                    echo "     * Notification 2 sent: " . ($debugOrder['notification_2_sent'] ?? 'NULL') . "\n";
+                    echo "     * Notification 3 sent: " . ($debugOrder['notification_3_sent'] ?? 'NULL') . "\n";
+                }
+            }
+        }
+        echo "\n";
+        
+        return $orders;
     }
     
     /**
@@ -331,12 +398,16 @@ class ThreeTimesNotificationSender {
             $subscriptions = $this->getUserSubscriptions($userId);
             
             if (empty($subscriptions)) {
-                echo "  - No subscriptions found for user\n";
+                echo "  - No subscriptions found for user {$order['username']} (ID: {$userId})\n";
+                echo "    ⚠️  User needs to enable push notifications in their browser\n";
                 $this->logNotification($userId, $orderId, "No subscriptions found", $period, 'failed');
+                // Don't mark as sent if there are no subscriptions
                 continue;
             }
             
-            // Create period-specific message
+            echo "  - Found " . count($subscriptions) . " subscription(s) for user\n";
+            
+            // Create period-specific message with order details
             $reminderText = [
                 1 => "Morning reminder: Your order is scheduled for TOMORROW!",
                 2 => "Afternoon reminder: Don't forget your order tomorrow!",
@@ -350,10 +421,14 @@ class ThreeTimesNotificationSender {
             }
             $indexPath = rtrim($basePath, '/') . '/index.php';
             
-            // Prepare notification payload
+            // Prepare notification payload with full order details
+            // Format: Single line with all details (browser notifications don't support multi-line well)
+            $notificationTitle = "{$periodEmoji} Order Reminder #{$period}";
+            $notificationBody = "{$reminderText[$period]} Order #{$orderNumber} on {$orderDate} at {$orderTime}";
+            
             $payload = [
-                'title' => "{$periodEmoji} Order Reminder #{$period}",
-                'body' => "{$reminderText[$period]} Order #{$orderNumber} on {$orderDate} at {$orderTime}",
+                'title' => $notificationTitle,
+                'body' => $notificationBody,
                 'tag' => "order-reminder-{$period}-{$orderId}",
                 'data' => [
                     'url' => $indexPath,

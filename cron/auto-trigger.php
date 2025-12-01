@@ -39,47 +39,27 @@ try {
     // Include the notification sender
     require_once __DIR__ . '/send-3x-daily-notifications.php';
     
-    // Suppress output and capture it
+    // Capture output from notification sender
     ob_start();
     $sender = new ThreeTimesNotificationSender($db);
     $result = $sender->processNotifications();
     $output = ob_get_clean();
     
-    // Send FCM notifications to mobile app users (FCM v1 API)
-    $fcmResult = null;
-    try {
-        // Check if service account file exists
-        if (file_exists(FCM_SERVICE_ACCOUNT_PATH)) {
-            $fcmSender = new FCMNotificationSender($db);
-            $fcmResult = $fcmSender->sendToAll(
-                'Evently Notification',
-                'You have a new notification from Evently!',
-                [
-                    'type' => 'daily_notification',
-                    'timestamp' => time(),
-                ]
-            );
-        } else {
-            $fcmResult = [
-                'success' => false,
-                'message' => 'Firebase service account file not found: ' . FCM_SERVICE_ACCOUNT_PATH
-            ];
-        }
-    } catch (Exception $fcmError) {
-        $fcmResult = [
-            'success' => false,
-            'error' => $fcmError->getMessage()
-        ];
-    }
+    // Note: FCM notifications are not sent here because order-specific notifications
+    // are already being sent by ThreeTimesNotificationSender with full order details.
+    // If you need FCM notifications, they should be sent per-order with order details.
     
-    // Return JSON response
+    // Return JSON response with output
     echo json_encode([
         'success' => true,
         'timestamp' => date('Y-m-d H:i:s'),
         'result' => $result,
-        'fcm_notifications' => $fcmResult,
-        'message' => 'Auto-trigger completed successfully'
-    ]);
+        'output' => $output, // Include the detailed output
+        'message' => 'Auto-trigger completed successfully',
+        'orders_processed' => $result['processed'] ?? 0,
+        'notifications_sent' => $result['sent'] ?? 0,
+        'period' => $result['period'] ?? 'none'
+    ], JSON_PRETTY_PRINT);
     
 } catch (Exception $e) {
     http_response_code(500);

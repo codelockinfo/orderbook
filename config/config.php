@@ -131,7 +131,7 @@ if ($isLocal) {
     define('BASE_URL', 'http://localhost/orderbook/');
 } else {
     // 🔹 Replace with your LIVE URL
-    define('BASE_URL', 'https://evently.happyeventsurat.com/');
+    define('BASE_URL', 'https://forestgreen-bison-718478.hostingersite.com/');
 }
 
 // Error Reporting
