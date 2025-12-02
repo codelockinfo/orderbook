@@ -51,8 +51,9 @@ if (session_status() === PHP_SESSION_NONE) {
         'samesite' => $sameSite // CSRF protection (Lax works for both WebView and browsers)
     ]);
     
-    // Set session garbage collection max lifetime to 7 days
-    ini_set('session.gc_maxlifetime', $sessionLifetime);
+    // IMPORTANT: Set session lifetime to match cookie lifetime
+    // This ensures session data persists on server for the same duration as the cookie
+    ini_set('session.gc_maxlifetime', $sessionLifetime); // 1 week (matches cookie lifetime)
     
     // Ensure session cookie is persistent (not session-only)
     ini_set('session.cookie_lifetime', $sessionLifetime);
