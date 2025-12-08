@@ -569,6 +569,10 @@ else if ($action === 'login' && $method === 'POST') {
             // Regenerate session ID on login for security
             session_regenerate_id(true);
             
+            // IMPORTANT: Ensure session cookie is set with 7-day lifetime
+            // This is critical for Flutter WebView apps to maintain login state
+            ensureSessionCookieLifetime();
+            
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
             $_SESSION['email'] = $user['email'];
@@ -742,7 +746,29 @@ else if ($action === 'reset_password' && $method === 'POST') {
 }
 
 else if ($action === 'logout' && $method === 'POST') {
+    // Clear all session data
+    $_SESSION = [];
+    
+    // Destroy the session
     session_destroy();
+    
+    // Explicitly clear the session cookie (important for WebView apps)
+    $sessionName = session_name();
+    $params = session_get_cookie_params();
+    
+    // Clear cookie for current domain and possible variations
+    setcookie($sessionName, '', time() - 3600, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+    setcookie($sessionName, '', time() - 3600, '/', '', $params['secure'], $params['httponly']);
+    
+    // Also clear for domain variations (for WebView compatibility)
+    $host = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '';
+    if (!empty($host)) {
+        $hostParts = explode(':', $host);
+        $hostDomain = $hostParts[0];
+        setcookie($sessionName, '', time() - 3600, '/', $hostDomain, $params['secure'], $params['httponly']);
+        setcookie($sessionName, '', time() - 3600, '/', '.' . $hostDomain, $params['secure'], $params['httponly']);
+    }
+    
     echo json_encode(['success' => true, 'message' => 'Logged out successfully']);
 }
 

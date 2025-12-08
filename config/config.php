@@ -39,6 +39,50 @@ $isSecure = isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] === 'on' || $_SERVER[
 // For WebView, sometimes we need to be more flexible with SameSite
 $sameSite = $isWebView ? 'Lax' : 'Lax'; // Both use Lax for same-domain requests
 
+/**
+ * Ensure session cookie is set with correct lifetime (for WebView compatibility)
+ * Call this after session_regenerate_id() to ensure cookie lifetime is preserved
+ */
+function ensureSessionCookieLifetime() {
+    global $sessionLifetime, $cookieDomain, $isSecure, $sameSite;
+    
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        // Get current session cookie parameters
+        $params = session_get_cookie_params();
+        
+        // Set cookie parameters again to ensure they're applied
+        session_set_cookie_params([
+            'lifetime' => $sessionLifetime,
+            'path' => $params['path'] ?? '/',
+            'domain' => $cookieDomain ?? ($params['domain'] ?? ''),
+            'secure' => $isSecure ?? ($params['secure'] ?? false),
+            'httponly' => $params['httponly'] ?? true,
+            'samesite' => $sameSite ?? ($params['samesite'] ?? 'Lax')
+        ]);
+        
+        // Explicitly set the cookie with the correct expiration time
+        // This is important for WebView apps to ensure the cookie persists
+        $sessionName = session_name();
+        $sessionId = session_id();
+        
+        if ($sessionId) {
+            $expireTime = time() + $sessionLifetime;
+            setcookie(
+                $sessionName,
+                $sessionId,
+                [
+                    'expires' => $expireTime,
+                    'path' => $params['path'] ?? '/',
+                    'domain' => $cookieDomain ?? ($params['domain'] ?? ''),
+                    'secure' => $isSecure ?? ($params['secure'] ?? false),
+                    'httponly' => $params['httponly'] ?? true,
+                    'samesite' => $sameSite ?? ($params['samesite'] ?? 'Lax')
+                ]
+            );
+        }
+    }
+}
+
 // Set session cookie parameters before starting session
 if (session_status() === PHP_SESSION_NONE) {
     // Set session cookie parameters FIRST (before session_start)
@@ -119,6 +163,8 @@ if (session_status() === PHP_SESSION_NONE) {
         // Regenerate every 30 minutes (1800 seconds)
         if ($timeSinceRegeneration > 1800) {
             session_regenerate_id(true);
+            // Ensure cookie lifetime is preserved after regeneration
+            ensureSessionCookieLifetime();
             $_SESSION['last_regeneration'] = time();
         }
     }
