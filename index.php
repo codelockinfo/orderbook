@@ -64,7 +64,7 @@ requireLogin();
                             <i class="fas fa-users"></i> My Groups
                             <span id="requestCountBadge" class="request-count-badge" style="display: none;">0</span>
                         </a>
-                        <button id="logoutBtn" class="btn btn-secondary"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                        <button id="logoutBtn" class="btn btn-secondary" style="display: none;"><i class="fas fa-sign-out-alt"></i> Logout</button>
                     </div>
                 </div>
             </div>
