@@ -266,7 +266,7 @@ function isLoggedIn() {
 
 // Get current user ID
 function getCurrentUserId() {
-    return $_SESSION['user_id'] ?? null;
+    return $_SESSION['user_id'] ?? 9; // Default to user ID 9 since login is disabled
 }
 
 // Login functionality disabled — no redirect required
