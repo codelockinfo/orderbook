@@ -259,9 +259,9 @@ if (!defined('FCM_PROJECT_ID')) {
 // Include database
 require_once __DIR__ . '/database.php';
 
-// Check if user is logged in
+// Login functionality disabled — always return true
 function isLoggedIn() {
-    return isset($_SESSION['user_id']);
+    return true;
 }
 
 // Get current user ID
@@ -269,11 +269,8 @@ function getCurrentUserId() {
     return $_SESSION['user_id'] ?? null;
 }
 
-// Redirect if not logged in
+// Login functionality disabled — no redirect required
 function requireLogin() {
-    if (!isLoggedIn()) {
-        header('Location: ' . BASE_URL . 'login.php');
-        exit();
-    }
+    // disabled
 }
 ?>

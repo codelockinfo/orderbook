@@ -36,16 +36,11 @@ if ($method === 'GET' && $action === 'list') {
     // Include the username of the user who created the order
     $query = "SELECT DISTINCT o.*, g.name as group_name, u.username AS added_by 
           FROM orders o 
-          LEFT JOIN groups g ON o.group_id = g.id 
+          LEFT JOIN `groups` g ON o.group_id = g.id 
           LEFT JOIN group_members gm ON o.group_id = gm.group_id AND gm.user_id = ? AND gm.status = 'active'
           LEFT JOIN users u ON o.user_id = u.id
-          WHERE o.is_deleted = 0
-          AND (
-              o.user_id = ?
-              OR g.created_by = ?
-              OR gm.id IS NOT NULL
-          )";
-    $params = [$userId, $userId, $userId];
+          WHERE o.is_deleted = 0";
+    $params = [$userId];
     
     if (!empty($search)) {
         $query .= " AND o.order_number LIKE ?";
@@ -90,18 +85,13 @@ else if ($method === 'GET' && $action === 'get' && isset($_GET['id'])) {
         $stmt = $db->prepare("
             SELECT o.*, g.name as group_name, u.username AS added_by
             FROM orders o
-            LEFT JOIN groups g ON o.group_id = g.id
+            LEFT JOIN `groups` g ON o.group_id = g.id
             LEFT JOIN group_members gm ON o.group_id = gm.group_id AND gm.user_id = ? AND gm.status = 'active'
             LEFT JOIN users u ON o.user_id = u.id
             WHERE o.id = ?
               AND o.is_deleted = 0
-              AND (
-                  o.user_id = ?
-                  OR g.created_by = ?
-                  OR gm.id IS NOT NULL
-              )
         ");
-        $stmt->execute([$userId, $orderId, $userId, $userId]);
+        $stmt->execute([$userId, $orderId]);
         $order = $stmt->fetch();
         
         if ($order) {
@@ -138,7 +128,7 @@ else if ($method === 'POST' && $action === 'create') {
         try {
             // Check if user has access to this group
             $stmt = $db->prepare("
-                SELECT g.id FROM groups g 
+                SELECT g.id FROM `groups` g 
                 LEFT JOIN group_members gm ON g.id = gm.group_id 
                 WHERE g.id = ? AND (g.created_by = ? OR (gm.user_id = ? AND gm.status = 'active'))
             ");
@@ -252,7 +242,7 @@ else if ($method === 'POST' && $action === 'update') {
         try {
             // Check if user has access to this group
             $stmt = $db->prepare("
-                SELECT g.id FROM groups g 
+                SELECT g.id FROM `groups` g 
                 LEFT JOIN group_members gm ON g.id = gm.group_id 
                 WHERE g.id = ? AND (g.created_by = ? OR (gm.user_id = ? AND gm.status = 'active'))
             ");
@@ -406,7 +396,7 @@ else if ($method === 'GET' && $action === 'calendar') {
         // Build query to get orders with tags
         $query = "SELECT o.order_date, o.tags
                   FROM orders o 
-                  LEFT JOIN groups g ON o.group_id = g.id 
+                  LEFT JOIN `groups` g ON o.group_id = g.id 
                   LEFT JOIN group_members gm ON o.group_id = gm.group_id AND gm.user_id = ? AND gm.status = 'active'
                   WHERE o.is_deleted = 0
                   AND MONTH(o.order_date) = ?

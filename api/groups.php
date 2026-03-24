@@ -24,7 +24,7 @@ if ($method === 'GET' && $action === 'list') {
                    (SELECT COUNT(*) FROM group_members WHERE group_id = g.id AND status = 'active') as member_count,
                    (SELECT COUNT(*) FROM group_members WHERE group_id = g.id AND status = 'pending') as pending_count,
                    (SELECT role FROM group_members WHERE group_id = g.id AND user_id = ?) as user_role
-            FROM groups g
+            FROM `groups` g
             LEFT JOIN users u ON g.created_by = u.id
             LEFT JOIN group_members gm ON g.id = gm.group_id
             WHERE g.created_by = ? OR (gm.user_id = ? AND gm.status = 'active')
@@ -48,7 +48,7 @@ else if ($method === 'GET' && $action === 'get' && isset($_GET['id'])) {
         $stmt = $db->prepare("
             SELECT g.*, u.username as creator_name,
                    (SELECT role FROM group_members WHERE group_id = g.id AND user_id = ?) as user_role
-            FROM groups g
+            FROM `groups` g
             LEFT JOIN users u ON g.created_by = u.id
             WHERE g.id = ?
         ");
@@ -111,7 +111,7 @@ else if ($method === 'POST' && $action === 'create') {
         $db->beginTransaction();
         
         // Create group
-        $stmt = $db->prepare("INSERT INTO groups (name, description, created_by) VALUES (?, ?, ?)");
+        $stmt = $db->prepare("INSERT INTO `groups` (name, description, created_by) VALUES (?, ?, ?)");
         $stmt->execute([$name, $description, $userId]);
         $groupId = $db->lastInsertId();
         
@@ -140,7 +140,7 @@ else if ($method === 'POST' && $action === 'join-request') {
     
     try {
         // Check if group exists
-        $stmt = $db->prepare("SELECT id FROM groups WHERE id = ?");
+        $stmt = $db->prepare("SELECT id FROM `groups` WHERE id = ?");
         $stmt->execute([$groupId]);
         if (!$stmt->fetch()) {
             echo json_encode(['success' => false, 'message' => 'Group not found']);
@@ -191,7 +191,7 @@ else if ($method === 'POST' && $action === 'respond-request') {
         $stmt = $db->prepare("
             SELECT gjr.*, g.id as group_id
             FROM group_join_requests gjr
-            JOIN groups g ON gjr.group_id = g.id
+            JOIN `groups` g ON gjr.group_id = g.id
             WHERE gjr.id = ? AND gjr.status = 'pending'
         ");
         $stmt->execute([$requestId]);
@@ -251,7 +251,7 @@ else if ($method === 'POST' && $action === 'delete') {
     try {
         // Check if user is the creator or admin
         $stmt = $db->prepare("
-            SELECT id FROM groups 
+            SELECT id FROM `groups` 
             WHERE id = ? AND (created_by = ? OR id IN (SELECT group_id FROM group_members WHERE group_id = ? AND user_id = ? AND role = 'ADMIN'))
         ");
         $stmt->execute([$groupId, $userId, $groupId, $userId]);
@@ -261,7 +261,7 @@ else if ($method === 'POST' && $action === 'delete') {
         }
         
         // Delete group (cascade will handle members and requests)
-        $stmt = $db->prepare("DELETE FROM groups WHERE id = ?");
+        $stmt = $db->prepare("DELETE FROM `groups` WHERE id = ?");
         $stmt->execute([$groupId]);
         
         echo json_encode(['success' => true, 'message' => 'Group deleted successfully']);
@@ -276,7 +276,7 @@ else if ($method === 'GET' && $action === 'available') {
         $stmt = $db->prepare("
             SELECT g.*, u.username as creator_name,
                    (SELECT COUNT(*) FROM group_members WHERE group_id = g.id AND status = 'active') as member_count
-            FROM groups g
+            FROM `groups` g
             LEFT JOIN users u ON g.created_by = u.id
             WHERE g.id NOT IN (
                 SELECT group_id FROM group_members WHERE user_id = ?
@@ -429,7 +429,7 @@ else if ($method === 'GET' && $action === 'my-requests') {
             SELECT gjr.*, g.name as group_name, g.description as group_description,
                    u.username as inviter_name
             FROM group_join_requests gjr
-            JOIN groups g ON gjr.group_id = g.id
+            JOIN `groups` g ON gjr.group_id = g.id
             LEFT JOIN users u ON gjr.requested_by = u.id
             WHERE gjr.user_id = ? AND gjr.status = 'pending' AND gjr.requested_by IS NOT NULL
             ORDER BY gjr.requested_at DESC
@@ -460,7 +460,7 @@ else if ($method === 'POST' && $action === 'accept-invitation') {
         $stmt = $db->prepare("
             SELECT gjr.*, g.id as group_id
             FROM group_join_requests gjr
-            JOIN groups g ON gjr.group_id = g.id
+            JOIN `groups` g ON gjr.group_id = g.id
             WHERE gjr.id = ? AND gjr.user_id = ? AND gjr.status = 'pending'
         ");
         $stmt->execute([$requestId, $userId]);
